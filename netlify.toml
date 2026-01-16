@@ -1,0 +1,29 @@
+[build]
+  command = "npm run build" 
+  publish = "public"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["mongoose", "axios"]
+
+ 
+[dev]
+  envFiles = [".env"]
+
+# ==========================
+# API → Netlify Functions
+# ==========================
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+  force = true
+
+# ==========================
+# SPA / PAGE REFRESH SAFETY
+# ==========================
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
