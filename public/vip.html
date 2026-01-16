@@ -10,7 +10,7 @@
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="./dist/tailwind.css">
+<link rel="stylesheet" href="dist/tailwind.css">
 
 
 </head>
@@ -329,14 +329,10 @@
     </label>
 
     <!-- Button -->
-    <button
-      id="vipAcceptBtn"
-      disabled
-      class="mt-4 w-full px-4 py-3 rounded-xl bg-gold text-black font-bold 
-             opacity-50 transition active:scale-[0.98]"
-    >
-      Continue to VIP Picks
-    </button>
+<button id="vipAcceptBtn" disabled>
+  Continue to VIP Picks
+</button>
+
 
   </div>
 </div>
@@ -404,6 +400,45 @@
 </div>
 
 <style>
+
+/* ==========================
+   VIP ACCEPT BUTTON (PURE CSS)
+========================== */
+#vipAcceptBtn {
+  margin-top: 1rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+
+  background-color: #facc15; /* gold */
+  color: #000;
+
+  font-weight: 700;
+  font-size: 1rem;
+
+  border: none;
+  border-radius: 14px;
+
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+/* Disabled state */
+#vipAcceptBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Hover (only when enabled) */
+#vipAcceptBtn:not(:disabled):hover {
+  opacity: 0.9;
+}
+
+/* Click effect */
+#vipAcceptBtn:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+
 .risk-safe { color:#22c55e; font-weight:700 }
 .risk-medium { color:#eab308; font-weight:700 }
 .risk-high { color:#ef4444; font-weight:700 }
@@ -598,6 +633,9 @@ footer {
 
 </body>
 <script>
+
+document.getElementById("vipAcceptBtn").disabled = false;
+
 
 window.VIP_ACCA_POOL = window.VIP_ACCA_POOL || [];
 
