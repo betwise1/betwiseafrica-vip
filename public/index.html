@@ -10,19 +10,23 @@
   <meta name="keywords" content="football analysis, betting discipline, avoid bad bets, VIP betting logic, value betting Africa"/>
   <meta name="author" content="Betwise Africa"/>
 
-  <!-- OPEN GRAPH -->
   <meta property="og:title" content="Betwise Africa — Most Losses Come From Bad Match Selection">
   <meta property="og:description" content="If you don’t know which matches to ignore, you’re already losing. Betwise Africa exposes risk before you bet.">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="/assets/stadium.jpeg">
+  <meta property="og:image" content="assets/stadium.jpeg">
 
-  <!-- PRELOAD HERO IMAGE -->
-  <link rel="preload" as="image" href="/assets/stadium.jpeg">
+  <link rel="preload" as="image" href="assets/stadium.jpeg">
 
-  <!-- TAILWIND -->
-  <link rel="stylesheet" href="/dist/tailwind.css">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+
+<link rel="stylesheet" href="/dist/tailwind.css">
+
 
   <style>
+    /* Optional fade animation */
     .carousel-slide {
       transition: opacity 0.5s ease-in-out;
       opacity: 0;
@@ -40,31 +44,31 @@
 
   <div class="absolute inset-0">
     <div class="carousel-slide absolute inset-0">
-      <img src="/assets/stadium.jpeg" class="w-full h-full object-cover brightness-75" />
+      <img src="images/stadium.jpeg" class="w-full h-full object-cover brightness-75" />
       <div class="absolute bottom-8 w-full text-center text-2xl md:text-3xl font-bold text-yellow-400 drop-shadow">
         Most Bets Lose Before Kickoff
       </div>
     </div>
 
     <div class="carousel-slide absolute inset-0">
-      <img src="/assets/soccer-players.jpeg" class="w-full h-full object-cover brightness-75" />
+      <img src="images/soccer-players.jpeg" class="w-full h-full object-cover brightness-75" />
       <div class="absolute bottom-8 w-full text-center text-2xl md:text-3xl font-bold text-yellow-400 drop-shadow">
         You’re Not Losing Because You’re Unlucky
       </div>
     </div>
 
     <div class="carousel-slide absolute inset-0">
-      <img src="/assets/stadium-night.jpeg" class="w-full h-full object-cover brightness-75" />
+      <img src="images/stadium-night.jpeg" class="w-full h-full object-cover brightness-75" />
       <div class="absolute bottom-8 w-full text-center text-2xl md:text-3xl font-bold text-yellow-400 drop-shadow">
         You’re Losing Because You’re Betting the Wrong Matches
       </div>
     </div>
 
-    <button onclick="plusSlides(-1)" class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 text-yellow-400 text-3xl hover:text-white transition">
+    <button onclick="plusSlides(-1)" class="carousel-nav absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 text-yellow-400 text-3xl hover:text-white transition">
       &#10094;
     </button>
 
-    <button onclick="plusSlides(1)" class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 text-yellow-400 text-3xl hover:text-white transition">
+    <button onclick="plusSlides(1)" class="carousel-nav absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 text-yellow-400 text-3xl hover:text-white transition">
       &#10095;
     </button>
   </div>
@@ -145,6 +149,41 @@
     <div class="bg-zinc-900 border border-zinc-700 rounded-xl p-6">
       <h3 class="text-xl font-bold text-yellow-400 mb-2">Final Decision Confidence</h3>
       <p>VIP users see confidence scores and stake logic — free users don’t.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="max-w-6xl mx-auto px-6 py-16">
+  <h2 class="text-3xl md:text-4xl text-center font-bold text-yellow-400 mb-10">
+    Access Levels
+  </h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-zinc-900 border border-zinc-700 rounded-xl p-6">
+      <h3 class="text-xl font-bold text-yellow-400 mb-2">Free Access</h3>
+      <p>Basic probabilities and partial insights.</p>
+      <p class="text-sm text-zinc-400 mt-2">
+        ⚠️ Final decisions, confidence levels, and risk filters are hidden.
+      </p>
+    </div>
+
+    <div class="bg-zinc-900 border border-yellow-500 rounded-xl p-6">
+      <h3 class="text-xl font-bold text-yellow-400 mb-2">VIP Decision Engine</h3>
+      <p>See what others miss before they place bad bets.</p>
+      <ul class="text-sm mt-3 space-y-1">
+        <li>✔ Final market verdict</li>
+        <li>✔ Trap & risk detection</li>
+        <li>✔ Confidence & stake logic</li>
+        <li>✔ Smart market selection</li>
+      </ul>
+      <p class="text-2xl font-bold text-yellow-400 mt-4">50 GHC / month</p>
+      <a href="vip.html" class="inline-block mt-4 px-6 py-3 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-200 text-black font-bold hover:scale-105 transition">
+        Unlock Full Engine
+      </a>
+      <p class="text-xs text-zinc-400 mt-2">
+        Cancel anytime. No picks sold. Logic only.
+      </p>
     </div>
   </div>
 </section>
