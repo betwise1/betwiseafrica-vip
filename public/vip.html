@@ -10,7 +10,7 @@
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="/.dist/tailwind.css">
+<link rel="stylesheet" href="/dist/tailwind.css">
 
 </head>
 <body class="min-h-screen bg-gradient-to-b from-black via-slate-950 to-slate-900 text-gray-200 font-poppins">
@@ -601,17 +601,7 @@ footer {
 </body>
 <script>
 
-document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(() => { // fallback timeout in case load event never fires
-    const loader = document.getElementById('vipPageLoader');
-    const app = document.getElementById('vipApp');
-    if(loader && app){
-      loader.style.display = 'none';
-      app.style.display = 'block';
-    }
-  }, 500); // 500ms delay
-});
-
+document.getElementById("vipAcceptBtn").disabled = false;
 
 
 window.VIP_ACCA_POOL = window.VIP_ACCA_POOL || [];
