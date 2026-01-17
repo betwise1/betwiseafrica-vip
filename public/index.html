@@ -24,28 +24,57 @@
 
   <link rel="stylesheet" href="dist/tailwind.css" />
 
- <style id="mobile-tailwind-guard">
-  /* Only applies if Tailwind fails on mobile */
-  @media (max-width: 768px) {
-    body[data-tw-broken="true"] .bg-black { background-color: #000 !important; }
-    body[data-tw-broken="true"] .text-white { color: #fff !important; }
+<script>
+(function () {
+  // Only on mobile devices
+  if (!window.matchMedia("(max-width: 768px)").matches) return;
 
-    body[data-tw-broken="true"] .bg-gold {
-      background-color: #d4af37 !important;
-      color: #000 !important;
-    }
+  function needsTailwindFallback() {
+    const test = document.createElement("div");
+    test.className = "bg-black hidden";
+    document.body.appendChild(test);
 
-    body[data-tw-broken="true"] .flex { display: flex !important; }
-    body[data-tw-broken="true"] .grid { display: grid !important; }
-    body[data-tw-broken="true"] .hidden { display: none !important; }
-    body[data-tw-broken="true"] .block { display: block !important; }
+    const bg = getComputedStyle(test).backgroundColor;
+    const display = getComputedStyle(test).display;
 
-    body[data-tw-broken="true"] button {
-      opacity: 1 !important;
-      visibility: visible !important;
-    }
+    document.body.removeChild(test);
+
+    return bg !== "rgb(0, 0, 0)" || display !== "none";
   }
-</style>
+
+  window.addEventListener("load", () => {
+    setTimeout(() => {
+      if (needsTailwindFallback()) {
+        console.warn("📱 Tailwind failed on mobile — loading CDN fallback");
+
+        const cdn = document.createElement("script");
+        cdn.src = "https://cdn.tailwindcss.com";
+        cdn.defer = true;
+
+        // Optional: match your gold color
+        cdn.onload = () => {
+          if (window.tailwind) {
+            tailwind.config = {
+              theme: {
+                extend: {
+                  colors: {
+                    gold: "#d4af37",
+                  },
+                  fontFamily: {
+                    poppins: ["Poppins", "sans-serif"],
+                  },
+                },
+              },
+            };
+          }
+        };
+
+        document.head.appendChild(cdn);
+      }
+    }, 200);
+  });
+})();
+</script>
 
 
 
@@ -60,37 +89,6 @@
     }
   </style>
 </head>
-
-<script>
-(function () {
-  // Mobile only
-  if (!window.matchMedia("(max-width: 768px)").matches) return;
-
-  function tailwindIsBroken() {
-    const test = document.createElement("div");
-    test.className = "bg-black hidden";
-    document.body.appendChild(test);
-
-    const bg = getComputedStyle(test).backgroundColor;
-    const display = getComputedStyle(test).display;
-
-    document.body.removeChild(test);
-
-    // If bg-black or hidden failed → Tailwind broken
-    return bg !== "rgb(0, 0, 0)" || display !== "none";
-  }
-
-  window.addEventListener("load", () => {
-    setTimeout(() => {
-      if (tailwindIsBroken()) {
-        console.warn("⚠️ Tailwind failed on mobile — fallback activated");
-        document.body.setAttribute("data-tw-broken", "true");
-      }
-    }, 100);
-  });
-})();
-</script>
-
 
 <body class="bg-black text-white leading-relaxed">
 
