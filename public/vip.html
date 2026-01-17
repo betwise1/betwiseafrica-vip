@@ -15,37 +15,8 @@
 </head>
 <body class="min-h-screen bg-gradient-to-b from-black via-slate-950 to-slate-900 text-gray-200 font-poppins">
 
-<div
-  id="vipPageLoader"
-  style="
-    position: fixed;
-    inset: 0;
-    background: linear-gradient(to bottom, #000, #020617, #020617);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 99999;
-  "
->
-  <div
-    style="
-      width: 56px;
-      height: 56px;
-      border: 5px solid rgba(212,175,55,0.25);
-      border-top-color: #d4af37;
-      border-radius: 50%;
-      animation: spin 0.9s linear infinite;
-    "
-  ></div>
-
-  <div style="margin-top: 16px; color: #d4af37; font-weight: 700;">
-    Loading VIP Engine…
-  </div>
-</div>
- 
-<!-- 🔽 START WRAPPING EVERYTHING HERE -->
-<div id="vipApp" style="display:none;">
+<div id="vipPageLoader" style="display:none;"></div>
+<div id="vipApp" style="display:block;">
 
 
 <div class="max-w-[1200px] mx-auto p-5">
@@ -630,7 +601,17 @@ footer {
 </body>
 <script>
 
-document.getElementById("vipAcceptBtn").disabled = false;
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => { // fallback timeout in case load event never fires
+    const loader = document.getElementById('vipPageLoader');
+    const app = document.getElementById('vipApp');
+    if(loader && app){
+      loader.style.display = 'none';
+      app.style.display = 'block';
+    }
+  }, 500); // 500ms delay
+});
+
 
 
 window.VIP_ACCA_POOL = window.VIP_ACCA_POOL || [];
