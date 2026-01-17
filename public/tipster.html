@@ -9,59 +9,26 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <link rel="stylesheet" href="dist/tailwind.css" />
+  <!-- Tailwind CDN (FULL, MOBILE-SAFE) -->
+<script src="https://cdn.tailwindcss.com"></script>
 
 <script>
-(function () {
-  // Only on mobile devices
-  if (!window.matchMedia("(max-width: 768px)").matches) return;
-
-  function needsTailwindFallback() {
-    const test = document.createElement("div");
-    test.className = "bg-black hidden";
-    document.body.appendChild(test);
-
-    const bg = getComputedStyle(test).backgroundColor;
-    const display = getComputedStyle(test).display;
-
-    document.body.removeChild(test);
-
-    return bg !== "rgb(0, 0, 0)" || display !== "none";
-  }
-
-  window.addEventListener("load", () => {
-    setTimeout(() => {
-      if (needsTailwindFallback()) {
-        console.warn("📱 Tailwind failed on mobile — loading CDN fallback");
-
-        const cdn = document.createElement("script");
-        cdn.src = "https://cdn.tailwindcss.com";
-        cdn.defer = true;
-
-        // Optional: match your gold color
-        cdn.onload = () => {
-          if (window.tailwind) {
-            tailwind.config = {
-              theme: {
-                extend: {
-                  colors: {
-                    gold: "#d4af37",
-                  },
-                  fontFamily: {
-                    poppins: ["Poppins", "sans-serif"],
-                  },
-                },
-              },
-            };
-          }
-        };
-
-        document.head.appendChild(cdn);
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          gold: "#d4af37",
+          yellowHover: "#facc15"
+        },
+        fontFamily: {
+          poppins: ["Poppins", "sans-serif"]
+        }
       }
-    }, 200);
-  });
-})();
+    }
+  }
 </script>
+
+
 
 
 
