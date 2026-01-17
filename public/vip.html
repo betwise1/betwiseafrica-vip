@@ -10,7 +10,7 @@
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="/dist/tailwind.css">
+  <link rel="stylesheet" href="/dist/tailwind.css" id="tailwind-local" />
 
 </head>
 <body class="min-h-screen bg-gradient-to-b from-black via-slate-950 to-slate-900 text-gray-200 font-poppins">
@@ -600,6 +600,29 @@ footer {
 
 </body>
 <script>
+
+
+(function () {
+  const test = document.createElement("div");
+  test.className = "hidden";
+  document.body.appendChild(test);
+
+  // Tailwind hidden = display:none
+  const works = window.getComputedStyle(test).display === "none";
+  test.remove();
+
+  if (!works) {
+    console.warn("Local Tailwind failed — loading CDN fallback");
+
+    const cdn = document.createElement("script");
+    cdn.src = "https://cdn.tailwindcss.com";
+    cdn.defer = true;
+
+    document.head.appendChild(cdn);
+  }
+})();
+
+
 
 document.getElementById("vipAcceptBtn").disabled = false;
 

@@ -9,7 +9,9 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-<link rel="stylesheet" href="/dist/tailwind.css">
+  <link rel="stylesheet" href="/dist/tailwind.css" id="tailwind-local" />
+
+
 
 </head>
 
@@ -34,6 +36,30 @@
 </div>
 
 <script>
+
+
+(function () {
+  const test = document.createElement("div");
+  test.className = "hidden";
+  document.body.appendChild(test);
+
+  // Tailwind hidden = display:none
+  const works = window.getComputedStyle(test).display === "none";
+  test.remove();
+
+  if (!works) {
+    console.warn("Local Tailwind failed — loading CDN fallback");
+
+    const cdn = document.createElement("script");
+    cdn.src = "https://cdn.tailwindcss.com";
+    cdn.defer = true;
+
+    document.head.appendChild(cdn);
+  }
+})();
+
+
+
 const API_BASE = "http://localhost:4000";
 
 /* =========================
