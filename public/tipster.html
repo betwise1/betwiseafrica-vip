@@ -37,6 +37,16 @@
 
 <script>
 
+if (/Android|iPhone/i.test(navigator.userAgent)) {
+  document.head.appendChild(
+    Object.assign(document.createElement("script"), {
+      src: "https://cdn.tailwindcss.com",
+      defer: true
+    })
+  );
+}
+</script>
+
 
 (function () {
   const test = document.createElement("div");
