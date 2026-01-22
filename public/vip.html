@@ -1,0 +1,2994 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>BetlogicApp — VIP Engine (Black & Gold) v3.1</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          gold: "#d4af37",
+          yellowHover: "#facc15"
+        },
+        fontFamily: {
+          poppins: ["Poppins", "sans-serif"]
+        }
+      }
+    }
+  }
+</script>
+
+
+
+
+</head>
+<body class="min-h-screen bg-gradient-to-b from-black via-slate-950 to-slate-900 text-gray-200 font-poppins">
+
+<div id="vipPageLoader" style="display:none;"></div>
+<div id="vipApp" style="display:block;">
+
+
+<div class="max-w-[1200px] mx-auto p-5">
+<div class="mb-4 max-w-sm" id="daysLeft"></div>
+<div id="vipExpiryBox" class="vip-expiry hidden"></div>
+
+<!-- HEADER -->
+<header class="flex flex-wrap items-center justify-between gap-4">
+  <div class="flex items-center gap-3">
+    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-gold to-yellow-500 flex items-center justify-center font-extrabold text-black">
+      B
+    </div>
+    <div>
+      <h1 class="text-lg font-bold">BetlogicApp — VIP Engine</h1>
+      <div class="text-sm text-gray-400">
+        Poisson + MonteCarlo + Form/H2H + Market fusion + ELO Strength
+      </div>
+    </div>
+  </div>
+
+
+  <div id="vip-status"></div>
+
+  <div class="flex items-center gap-3">
+    <button id="btnLogoutVip"
+      class="hidden px-4 py-2 rounded-lg border border-gold text-gold hover:bg-gold hover:text-black transition">
+      End VIP
+    </button>
+  </div>
+</header>
+
+<div id="gateArea" class="mt-4"></div>
+
+
+<!-- DASHBOARD -->
+<div id="dashboardArea" class="hidden grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-6 mt-5">
+
+
+  <!-- MAIN -->
+  <div class="relative z-10 bg-gradient-to-b from-[#0f1113] to-[#0b0d0f] p-5 rounded-2xl border border-white/5 shadow-2xl" class="relative z-10 bg-gradient-to-b from-[#0f1113] to-[#0b0d0f] p-5 rounded-2xl border border-white/5 shadow-2xl">
+
+
+
+    <h3 class="font-semibold mb-2">VIP Ultra Analyzer — All Markets</h3>
+    <div class="text-sm text-gray-400 mb-4">
+      Enter match info and bookmaker odds — engine derives probabilities and VIP picks.
+    </div>
+
+    <label class="text-sm text-gray-400">Team A</label>
+    <input id="vipTeamA" class="w-full p-3 mb-2 rounded-lg bg-black border border-white/10">
+
+    <label class="text-sm text-gray-400">Team B</label>
+    <input id="vipTeamB" class="w-full p-3 mb-2 rounded-lg bg-black border border-white/10">
+
+    <label class="text-sm text-gray-400">Manual H2H With Date</label>
+    <textarea id="vipH2H" class="w-full p-3 rounded-lg bg-black border border-white/10 min-h-[100px]"></textarea>
+    
+    <label class="text-sm text-gray-400">Use League form Only dont add competitions</label>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+      <input id="vipFormA" placeholder="Team A Form" class="p-3 rounded-lg bg-black border border-white/10">
+      <input id="vipFormB" placeholder="Team B Form" class="p-3 rounded-lg bg-black border border-white/10">
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+      <input id="vipOddsHome" type="number" step="0.01" placeholder="Odds Home" class="p-3 rounded-lg bg-black border border-white/10">
+      <input id="vipOddsDraw" type="number" step="0.01" placeholder="Odds Draw" class="p-3 rounded-lg bg-black border border-white/10">
+      <input id="vipOddsAway" type="number" step="0.01" placeholder="Odds Away" class="p-3 rounded-lg bg-black border border-white/10">
+      <input id="vipOddsOver25" type="number" step="0.01" placeholder="Over 2.5" class="p-3 rounded-lg bg-black border border-white/10">
+      <input id="vipOddsUnder25" type="number" step="0.01" placeholder="Under 2.5" class="p-3 rounded-lg bg-black border border-white/10">
+      <input id="vipOddsBTTS" type="number" step="0.01" placeholder="BTTS Yes" class="p-3 rounded-lg bg-black border border-white/10">
+    </div>
+
+    <label class="text-sm text-gray-400">Select Competition</label>
+    <select id="leagueSelect" class="w-full p-3 mb-2 rounded-lg bg-black border border-white/10" onchange="handleLeagueChange()">
+      <option value="">-- Select League / Cup --</option>
+      <!-- LEAGUES & CUPS -->
+      <optgroup label="Leagues">
+        <option>Premier League</option>
+        <option>Championship</option>
+        <option>La Liga</option>
+        <option>Segunda División</option>
+        <option>Bundesliga</option>
+        <option>2. Bundesliga</option>
+        <option>Serie A</option>
+        <option>Serie B</option>
+        <option>Ligue 1</option>
+        <option>Ligue 2</option>
+        <option>Eredivisie</option>
+        <option>Primeira Liga</option>
+        <option>Belgian Pro League</option>
+        <option>Scottish Premiership</option>
+        <option>Turkish Super Lig</option>
+        <option>Greek Super League</option>
+        <option>MLS</option>
+        <option>Brazil Serie A</option>
+        <option>Argentina Primera</option>
+      </optgroup>
+
+      <optgroup label="Cups">
+        <option>FA Cup</option>
+        <option>EFL Cup</option>
+        <option>Community Shield</option>
+        <option>UEFA Champions League</option>
+        <option>UEFA Europa League</option>
+        <option>UEFA Conference League</option>
+        <option>UEFA Super Cup</option>
+        <option>Copa del Rey</option>
+        <option>Supercopa de España</option>
+        <option>DFB Pokal</option>
+        <option>DFL Supercup</option>
+        <option>Coppa Italia</option>
+        <option>Supercoppa Italiana</option>
+        <option>Coupe de France</option>
+        <option>Trophée des Champions</option>
+        <option>KNVB Cup</option>
+        <option>Portuguese Cup</option>
+        <option>Taça de Portugal</option>
+        <option>CAF Champions League</option>
+        <option>CAF Confederation Cup</option>
+        <option>FIFA Club World Cup</option>
+        <option>Intercontinental Cup</option>
+      </optgroup>
+
+      <optgroup label="Blocked / Unreliable Leagues">
+        <option disabled>International Friendly</option>
+        <option disabled>CAF Competitions</option>
+        <option disabled>AFCON Qualifiers</option>
+        <option disabled>Ghana Premier League</option>
+        <option disabled>NPFL</option>
+        <option disabled>Youth League</option>
+        <option disabled>Reserve League</option>
+        <option disabled>Women League</option>
+        <option disabled>U17 League</option>
+        <option disabled>U19 League</option>
+        <option disabled>U21 League</option>
+        <option disabled>Regional League</option>
+        <option disabled>Lower Division</option>
+        <option disabled>Unknown League</option>
+      </optgroup>
+    </select>
+
+    <div id="leagueWarning" class="text-red-500 text-sm hidden mb-2"></div>
+
+
+
+    <div class="flex gap-3 mt-4">
+  <!-- VIP Analyze Button -->
+<button
+  id="vipAnalyzeBtn"
+  type="button"
+  style="
+    background-color: #d4af37;
+    color: #000;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.15s ease;
+  "
+  onmouseover="this.style.backgroundColor='#facc15'"
+  onmouseout="this.style.backgroundColor='#d4af37'"
+>
+  Run VIP Analyze
+</button>
+
+
+  <button
+  id="exportVipBtn"
+  class="px-6 py-2 rounded-lg border border-white/20 text-gray-300 cursor-pointer hover:bg-white/5 transition-all duration-150"
+>
+  Export JSON
+</button>
+</div>
+
+
+    <div id="vipResult" class="mt-4 p-4 rounded-xl bg-black/40"></div>
+
+    <!-- CORRECT SCORE SECTION -->
+<div
+  id="correct-score-section"
+  class="mt-6 rounded-2xl border border-white/10 bg-gradient-to-b from-black/60 to-black/30 p-4 shadow-xl hidden">
+  <h4 class="text-sm font-semibold text-gold mb-3 flex items-center gap-2">
+    🎯 Correct Score
+  </h4>
+
+  <div
+    id="correct-score-list"
+    class="grid grid-cols-1 sm:grid-cols-2 gap-3"
+  >
+    <!-- JS injects top 2 scores here -->
+  </div>
+</div>
+    <div id="matrixResult" class="text-xs text-gray-400 mt-2"></div>
+
+  </div> <!-- END MAIN -->
+
+  <!-- SIDEBAR -->
+
+  <aside class="space-y-4">
+    <div class="bg-[#0f1113] p-5 rounded-2xl border border-white/5 shadow-xl">
+      <div id="vipStatus" class="text-2xl font-bold text-gold mb-2"></div>
+      <button id="savePickBtn" class="w-full px-4 py-2 rounded-lg border border-white/20 text-gray-300 mb-2">Save VIP Pick</button>
+      <button id="clearSavedBtn" class="w-full px-4 py-2 rounded-lg border border-red-400/40 text-red-400 text-sm">Clear All Saved</button>
+    </div>
+
+    <div id="savedPicks" class="max-h-64 overflow-y-auto bg-black/20 p-3 rounded-lg border border-white/10 text-gray-300 text-sm">
+      No saved picks
+    </div>
+
+ <!-- VIP Tips Button -->
+<button
+  id="openTipsterBtn"
+  type="button"
+  style="
+    width: 100%;
+    background-color: #d4af37;
+    color: #000;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.15s ease;
+  "
+  onmouseover="this.style.backgroundColor='#facc15'"
+  onmouseout="this.style.backgroundColor='#d4af37'"
+>
+  VIP Tips COMING SOON
+</button>
+
+
+  </aside>
+
+</div> <!-- END DASHBOARD -->
+
+</div> <!-- END MAIN WRAPPER -->
+
+
+<!-- RULES MODAL (MOBILE OPTIMIZED) -->
+<div id="vipRulesModal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80">
+
+  <div class="bg-[#0f1113] border border-gold/40 rounded-t-2xl sm:rounded-2xl 
+              p-4 sm:p-6 w-full sm:max-w-lg max-h-[85vh] overflow-y-auto">
+
+    <!-- Header -->
+    <h2 class="text-lg sm:text-xl font-bold text-gold mb-2 text-center">
+      VIP Betting Rules
+    </h2>
+
+    <!-- Rules -->
+    <ul class="text-xs sm:text-sm text-gray-300 space-y-2 leading-relaxed">
+      <li>• Picks are <strong>probability-based</strong>, not guarantees</li>
+      <li>• <strong>Low Risk</strong> → main bankroll protection</li>
+      <li>• <strong>Medium Risk</strong> → small controlled growth</li>
+      <li>• <strong>High Risk</strong> → optional, very small stake</li>
+      <li>• Never chase losses</li>
+      <li>• Avoid stacking Medium/High risk ACCAs</li>
+      <li>• Follow bankroll percentages</li>
+      <li>• Respect “No Bet” signals</li>
+    </ul>
+
+    <!-- Warning box -->
+    <div class="mt-3 p-2 rounded-lg bg-black/40 border border-yellow-400/20 
+                text-[11px] sm:text-xs text-yellow-300 leading-snug">
+      ⚠️ Bet responsibly. Stake only what you can afford to lose.
+    </div>
+
+    <!-- Accept -->
+    <label class="flex items-start gap-2 mt-4 text-xs sm:text-sm text-gray-300">
+      <input id="vipAcceptRules" type="checkbox" class="accent-yellow-400 mt-0.5">
+      <span>I understand and accept these rules</span>
+    </label>
+
+    <!-- Button -->
+<button id="vipAcceptBtn" disabled>
+  Continue to VIP Picks
+</button>
+
+
+  </div>
+</div>
+
+</div>
+<div id="vipAccaSection" class="acca-section mt-4">
+
+  <h3 class="acca-title text-base sm:text-lg font-bold mb-2">
+    🔥 VIP ACCA BUILDER
+  </h3>
+
+  <!-- NO ACCA -->
+  <div id="noAcca" class="acca-box danger hidden text-sm sm:text-base p-2 rounded-md">
+    🚫 No safe accumulator available today
+  </div>
+
+  <!-- CORE ACCA -->
+  <div id="coreAcca" class="acca-box safe hidden mt-3">
+
+    <h4 class="text-sm sm:text-base font-semibold mb-2">
+      🟢 CORE ACCA (SAFE)
+    </h4>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-xs sm:text-sm border-collapse">
+        <thead class="bg-gray-800 text-gray-400 text-[10px] sm:text-xs">
+          <tr>
+            <th class="text-left px-2 py-1">Market</th>
+            <th class="text-center px-2 py-1">Prob</th>
+            <th class="text-center px-2 py-1">Odds</th>
+            <th class="text-center px-2 py-1 hidden sm:table-cell">EV</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="acca-footer text-xs sm:text-sm mt-2 text-gray-300"></div>
+  </div>
+
+  <!-- BOOST ACCA -->
+  <div id="boostAcca" class="acca-box medium hidden mt-4">
+
+    <h4 class="text-sm sm:text-base font-semibold mb-2">
+      🟡 BOOST ACCA (OPTIONAL)
+    </h4>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-xs sm:text-sm border-collapse">
+        <thead class="bg-gray-800 text-gray-400 text-[10px] sm:text-xs">
+          <tr>
+            <th class="text-left px-2 py-1">Market</th>
+            <th class="text-center px-2 py-1">Prob</th>
+            <th class="text-center px-2 py-1">Odds</th>
+            <th class="text-center px-2 py-1 hidden sm:table-cell">EV</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="acca-footer text-xs sm:text-sm mt-2 text-gray-300"></div>
+  </div>
+</div>
+</div>
+
+<style>
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ==========================
+   VIP ACCEPT BUTTON (PURE CSS)
+========================== */
+#vipAcceptBtn {
+  margin-top: 1rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+
+  background-color: #facc15; /* gold */
+  color: #000;
+
+  font-weight: 700;
+  font-size: 1rem;
+
+  border: none;
+  border-radius: 14px;
+
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+/* Disabled state */
+#vipAcceptBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Hover (only when enabled) */
+#vipAcceptBtn:not(:disabled):hover {
+  opacity: 0.9;
+}
+
+/* Click effect */
+#vipAcceptBtn:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+
+.risk-safe { color:#22c55e; font-weight:700 }
+.risk-medium { color:#eab308; font-weight:700 }
+.risk-high { color:#ef4444; font-weight:700 }
+footer {
+  text-align: center;
+}
+
+.vip-expiry {
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+.vip-expiry.safe {
+  background: #0f3d1f;
+  color: #8bffb3;
+}
+.vip-expiry.warn {
+  background: #3d2f0f;
+  color: #ffd27a;
+}
+.vip-expiry.danger {
+  background: #3d0f0f;
+  color: #ff9b9b;
+}
+
+ .acca-section {
+  margin-top: 20px;
+  padding: 16px;
+  background: #0b0b0b;
+  border-radius: 14px;
+  color: #fff;
+  font-family: Inter, system-ui;
+}
+
+.acca-title {
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.acca-box {
+  margin-bottom: 16px;
+  padding: 14px;
+  border-radius: 12px;
+}
+
+.acca-box.safe {
+  background: linear-gradient(135deg, #0f3d2e, #145a32);
+}
+
+.acca-box.medium {
+  background: linear-gradient(135deg, #3b2f0b, #5c4600);
+}
+
+.acca-box.danger {
+  background: #3b0d0d;
+  text-align: center;
+}
+
+.acca-box table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.acca-box th,
+.acca-box td {
+  padding: 6px;
+  font-size: 13px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.acca-footer {
+  margin-top: 8px;
+  font-weight: bold;
+  text-align: right;
+}
+
+.hidden {
+  display: none;
+}
+
+
+
+/* ==========================
+   OPTIONAL MOBILE CSS
+========================= */
+
+
+.mobile-row td {
+  padding: 0.5rem 0.75rem;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .mobile-row td div.font-semibold { font-size: 0.9rem; }
+  .mobile-row td { font-size: 0.75rem; }
+}
+
+.acca-footer {
+  position: sticky;
+  bottom: 0;
+  background: #111;
+  color: #fff;
+  padding: 0.5rem 0.75rem;
+  z-index: 10;
+}
+/* ==========================
+   Correct Score – Modern UI
+========================== */
+#correct-score-section {
+  margin-top: 18px;
+  padding: 16px;
+  border-radius: 14px;
+   background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0.03)
+  );
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+#correct-score-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Each score item */
+.correct-score-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.12),
+    rgba(255, 255, 255, 0.05)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.correct-score-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+/* Score text */
+.correct-score-item .score {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+}
+
+/* Probability badge */
+.correct-score-item .prob {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #052e1c;
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.35);
+}
+
+/* Highlight top probability */
+ .correct-score-item.top {
+  background: linear-gradient(135deg, #facc15, #f59e0b);
+  color: #1f1300;
+  transform: scale(1.05);
+}
+
+.correct-score-item.top .score {
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.correct-score-item.top .prob {
+  background: rgba(0, 0, 0, 0.15);
+  color: #1f1300;
+  font-weight: 700;
+}
+</style>
+
+
+</body>
+<script>
+
+
+
+
+document.getElementById("vipAcceptBtn").disabled = false;
+
+
+window.VIP_ACCA_POOL = window.VIP_ACCA_POOL || [];
+
+/* ==========================
+   UTILITY FUNCTIONS
+========================== */
+function safeNum(x, d = 0) {
+  return typeof x === "number" && !isNaN(x) ? x : d;
+}
+
+function clamp(x, min = 0, max = 1) {
+  return Math.min(max, Math.max(min, safeNum(x, min)));
+}
+
+function escapeHtml(str = "") {
+  return String(str)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+/* ==========================
+   PREDICTION LOGGING (ENHANCED)
+========================== */
+function logPrediction(result) {
+  if (!result || result.noBet) return;
+
+  const pick = result.vipPrimary?.[0];
+  if (!pick) return;
+
+  // Attach odds for the market if available
+  const marketOdds = result.input?.odds?.[pick.k] ?? 0;
+
+  const log = {
+    time: Date.now(),
+    match: `${result.input?.teamA || "?"} vs ${result.input?.teamB || "?"}`,
+    league: result.input?.league || "UNKNOWN",
+    market: pick.k || null,
+    probability: safeNum(pick.v, 0),
+    odds: safeNum(marketOdds, 0),
+    outcome: null, // to be filled after match
+    correctScores: result.correctScores?.map(cs => ({
+      ...cs,
+      hit: null // to be filled after match ends
+    }))
+  };
+
+  const logs = JSON.parse(localStorage.getItem("VIP_LOGS") || "[]");
+  logs.push(log);
+
+  // Keep last 2000 records
+  localStorage.setItem("VIP_LOGS", JSON.stringify(logs));
+}
+
+/* ==========================
+   SETTLE PREDICTION
+========================== */
+function settleLastPick(isWin, correctScoreHits = []) {
+  const logs = JSON.parse(localStorage.getItem("VIP_LOGS") || "[]");
+  if (!logs.length) return;
+
+  const last = logs[logs.length - 1];
+  last.outcome = !!isWin;
+
+  // Update correctScores hits if provided
+  if (Array.isArray(correctScoreHits) && last.correctScores) {
+    last.correctScores.forEach((cs, i) => {
+      cs.hit = correctScoreHits[i] ?? null;
+    });
+  }
+
+  localStorage.setItem("VIP_LOGS", JSON.stringify(logs));
+}
+
+/* ==========================
+   STATISTICAL ACCURACY
+========================== */
+function calculateStats() {
+  const logs = JSON.parse(localStorage.getItem("VIP_LOGS") || "[]");
+  const finished = logs.filter(l => l.outcome !== null);
+
+  if (!finished.length) return null;
+
+  let hits = 0;
+  let brier = 0;
+
+  finished.forEach(l => {
+    const actual = l.outcome ? 1 : 0;
+    hits += actual;
+    brier += Math.pow(actual - safeNum(l.probability, 0), 2);
+  });
+
+  return {
+    total: finished.length,
+    hitRate: (hits / finished.length) * 100,
+    brier: brier / finished.length
+  };
+}
+
+// League-specific accuracy
+const leagueHistory = {}; // store past predictions per league
+function computeLeagueAccuracy(league, result) {
+  if (!league) return null;
+
+  if (!leagueHistory[league]) {
+    leagueHistory[league] = { total: 0, correct: 0 };
+  }
+
+  // Suppose we track correct score hits
+  const hit = result.correctScores?.some(cs => cs.hit) ?? false;
+  leagueHistory[league].total += 1;
+  if (hit) leagueHistory[league].correct += 1;
+
+  const accuracy = leagueHistory[league].correct / leagueHistory[league].total;
+  return {
+    totalGames: leagueHistory[league].total,
+    correctPicks: leagueHistory[league].correct,
+    accuracy: +(accuracy * 100).toFixed(1) + "%"
+  };
+}
+
+
+/* ==========================
+   STORE VIP TOKEN
+========================== */
+(function () {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get("token");
+
+  if (token) {
+    localStorage.setItem("VIP_TOKEN", token);
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+})();
+
+
+/* ==========================
+   VIP RULES MODAL
+========================== */
+document.addEventListener("DOMContentLoaded", () => {
+  const rulesModal = safeById("vipRulesModal");
+  const check = safeById("vipAcceptRules");
+  const btn = safeById("vipAcceptBtn");
+
+  if (!localStorage.getItem("VIP_RULES_ACCEPTED")) rulesModal?.classList.remove("hidden");
+
+  check?.addEventListener("change", () => {
+    btn.disabled = !check.checked;
+    btn?.classList.toggle("opacity-50", !check.checked);
+  });
+
+  btn?.addEventListener("click", () => {
+    localStorage.setItem("VIP_RULES_ACCEPTED", "yes");
+    rulesModal?.classList.add("hidden");
+  });
+
+  const token = new URLSearchParams(location.search).get("token");
+  if (token) {
+    localStorage.setItem("VIP_TOKEN", token);
+    history.replaceState({}, document.title, "vip.html");
+  }
+});
+
+/* ==========================
+   COMPETITION CONTROL (SAFE)
+========================== */
+const APPROVED_LEAGUES = [
+  "Premier League", "Championship",
+  "La Liga", "Segunda División",
+  "Bundesliga", "2. Bundesliga",
+  "Serie A", "Serie B",
+  "Ligue 1", "Ligue 2",
+  "Eredivisie", "Primeira Liga",
+  "Belgian Pro League", "Scottish Premiership",
+  "Turkish Super Lig", "Greek Super League",
+  "MLS", "Brazil Serie A", "Argentina Primera"
+];
+
+const APPROVED_CUPS = [
+  "FA Cup", "EFL Cup", "Community Shield",
+  "UEFA Champions League", "UEFA Europa League", "UEFA Conference League", "UEFA Super Cup",
+  "Copa del Rey", "Supercopa de España",
+  "DFB Pokal", "DFL Supercup",
+  "Coppa Italia", "Supercoppa Italiana",
+  "Coupe de France", "Trophée des Champions",
+  "KNVB Cup", "Portuguese Cup", "Taça de Portugal",
+  "CAF Champions League", "CAF Confederation Cup",
+  "FIFA Club World Cup", "Intercontinental Cup"
+];
+
+const BLOCKED_LEAGUES = [
+  "International Friendly", "CAF Competitions",
+  "AFCON Qualifiers", "Ghana Premier League",
+  "NPFL", "Youth League", "Reserve League",
+  "Women League", "U17 League", "U19 League",
+  "U21 League", "Regional League",
+  "Lower Division", "Unknown League"
+];
+
+/* ==========================
+   GLOBAL STATE (SINGLETON)
+========================== */
+let selectedLeague = null;
+let leagueBlocked = false;
+let leagueType = "league"; // league | cup | blocked
+
+function detectCompetitionType(name = "") {
+  if (BLOCKED_LEAGUES.includes(name)) return "blocked";
+  if (APPROVED_CUPS.includes(name)) return "cup";
+  if (APPROVED_LEAGUES.includes(name)) return "league";
+  return "blocked";
+}
+
+function handleLeagueChange() {
+  const select = document.getElementById("leagueSelect");
+  const warning = document.getElementById("leagueWarning");
+
+  if (!select || !warning) return;
+
+  selectedLeague = select.value.trim();
+  leagueBlocked = false;
+  leagueType = "league";
+
+  warning.textContent = "";
+  warning.classList.add("hidden");
+
+  if (!selectedLeague) return;
+
+  leagueType = detectCompetitionType(selectedLeague);
+
+  if (leagueType === "blocked") {
+    leagueBlocked = true;
+    warning.textContent =
+      "🚫 This competition is BLOCKED due to unreliable or manipulated data.";
+    warning.classList.remove("hidden");
+    return;
+  }
+
+  if (leagueType === "cup") {
+    warning.textContent =
+      "🏆 Cup / knockout match detected — higher variance applied.";
+    warning.classList.remove("hidden");
+  }
+}
+
+
+/* ==========================
+   UTILITY FUNCTIONS
+========================== */
+function safeUpper(x, fallback = "N/A") {
+  return typeof x === "string" && x.trim() ? x.toUpperCase() : fallback;
+}
+
+function normalizeLeagueName(league = "") {
+  return league.toString().trim().toLowerCase().replace(/[^a-z\s]/g, "").replace(/\s+/g, " ");
+}
+
+function clamp(value, min = 0, max = 1) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function safeNum(x, fallback = 0) {
+  const n = parseFloat(x);
+  return isNaN(n) ? fallback : n;
+}
+
+function factorial(n) {
+  if (n < 2) return 1;
+  let r = 1;
+  for (let i = 2; i <= n; i++) r *= i;
+  return r;
+}
+
+function poissonPMF(k, lambda) {
+  if (lambda <= 0) return 0;
+  return Math.pow(lambda, k) * Math.exp(-lambda) / factorial(k);
+}
+
+/* ==========================
+   H2H GOAL PRESSURE
+========================== */
+function h2hGoalPressure(h2hAvgGoals) {
+  if (h2hAvgGoals >= 3.2) return 0.18;
+  if (h2hAvgGoals >= 2.8) return 0.12;
+  if (h2hAvgGoals >= 2.5) return 0.08;
+  return 0;
+}
+
+function allowUnder(prob) {
+  return (
+    prob.under25 >= 0.60 &&
+    prob.over25 < 0.52 &&
+    prob.btts < 0.52
+  );
+}
+
+
+/* ==========================
+   MARKET SELECTION
+========================== */
+function autoSelectBestMarket(probabilities, odds = {}) {
+  if (!probabilities || typeof probabilities !== "object") return null;
+
+  // 🔧 softened but disciplined thresholds
+  const RULES = {
+    home: 0.60,
+    draw: 0.58,
+    away: 0.60,
+    over25: 0.58,
+    under25: 0.62,
+    btts: 0.58
+  };
+
+  const markets = Object.keys(RULES).map(key => {
+    const prob = safeNum(probabilities[key], 0);
+    const odd = safeNum(odds[key], 0);
+    const minProb = RULES[key];
+
+    let riskLevel = "red";
+    if (prob >= minProb + 0.08) riskLevel = "green";
+    else if (prob >= minProb) riskLevel = "yellow";
+
+    const ev = odd > 1 ? (prob * odd) - 1 : -1;
+
+    return {
+      key,
+      prob,
+      odd,
+      minProb,
+      riskLevel,
+      risk: normalizeRisk(riskLevel),
+      ev,
+      score: (ev * 0.65) + (prob * 0.35)
+    };
+  });
+
+  // Sort by combined intelligence score
+  markets.sort((a, b) => b.score - a.score);
+
+  let best = markets[0] || null;
+
+  /* ==========================
+     SMART CONFLICT RESOLUTION
+  ========================== */
+
+  // 🔥 Avoid UNDER bias when OVER has edge
+  if (best?.key === "under25") {
+    const over = markets.find(m => m.key === "over25");
+    if (
+      over &&
+      over.ev > best.ev + 0.02 &&
+      probabilities.over25 > 0.55
+    ) {
+      best = over;
+    }
+  }
+
+  // 🔁 BTTS sanity switch
+  if (best?.key === "btts") {
+    const over = markets.find(m => m.key === "over25");
+    const under = markets.find(m => m.key === "under25");
+
+    if (
+      over &&
+      probabilities.over25 > probabilities.btts + 0.07 &&
+      over.ev >= best.ev
+    ) {
+      best = over;
+    }
+
+    if (
+      under &&
+      probabilities.under25 > probabilities.btts + 0.08 &&
+      under.ev >= best.ev
+    ) {
+      best = under;
+    }
+  }
+
+  /* ==========================
+     FINAL GATE (VERY IMPORTANT)
+  ========================== */
+
+  // Allow high-EV slight-under-prob picks
+  if (
+    !best ||
+    (best.prob < best.minProb && best.ev < 0.03)
+  ) {
+    return null;
+  }
+
+  return {
+    k: best.key,
+    v: best.prob,
+    prob: best.prob,
+    label: best.key.toUpperCase(),
+    risk: best.risk,
+    riskLevel: best.riskLevel,
+    ev: best.ev
+  };
+}
+
+
+/* ==========================
+   TRAP DETECTION
+========================== */
+function detectTrapMatch(input, probabilities) {
+  const flags = [];
+  if (!probabilities || !input?.odds) return { isTrap: true, flags: ["Invalid data"] };
+
+  const { home = 0, draw = 0, away = 0, over25 = 0, under25 = 0, btts = 0 } = probabilities;
+  const odds = input.odds;
+  const impliedProb = o => (o > 1 ? 1 / o : 0);
+
+  if (odds.home && home - impliedProb(odds.home) > 0.12) flags.push("Home odds disagree with model");
+  if (odds.away && away - impliedProb(odds.away) > 0.12) flags.push("Away odds disagree with model");
+  if (odds.over25 && over25 - impliedProb(odds.over25) > 0.12) flags.push("Over 2.5 odds disagree with model");
+
+  if (Math.abs(home - away) < 0.08 && draw > 0.28) flags.push("1X2 market unclear");
+  if (Math.abs(over25 - under25) < 0.08 || (over25 < 0.5 && btts < 0.5)) flags.push("Goal markets conflicted");
+
+  const weakForm = input.home?.goals_for < 1.2 || input.away?.goals_for < 1.2;
+  const h2hAvg = avgGoalsFromH2H(input.h2h || "");
+  if (h2hAvg > 2.7 && weakForm) flags.push("H2H strong but current form weak");
+
+  const maxProb = Math.max(home, draw, away, over25, under25, btts);
+  if (maxProb < 0.48) flags.push("No strong probability edge");
+
+  return { isTrap: flags.length >= 1, flags };
+}
+
+/* ==========================
+   INPUT PARSING
+========================== */
+function readInput() {
+  const leagueEl = safeById("leagueSelect");
+  if (!leagueEl) throw new Error("League selector not found");
+
+  let selectedLeague = leagueEl.value?.trim() || leagueEl.options[leagueEl.selectedIndex]?.text?.trim() || "";
+  if (!selectedLeague || selectedLeague.toLowerCase().includes("select")) throw new Error("No league selected");
+
+  const teamA = (safeById("vipTeamA")?.value || "Team A").trim().substring(0, 32);
+  const teamB = (safeById("vipTeamB")?.value || "Team B").trim().substring(0, 32);
+  const h2hRaw = safeById("vipH2H")?.value || "";
+  const formAraw = safeById("vipFormA")?.value || "";
+  const formBraw = safeById("vipFormB")?.value || "";
+
+  const odds = {
+    home: parseFloat(safeById("vipOddsHome")?.value) || 0,
+    draw: parseFloat(safeById("vipOddsDraw")?.value) || 0,
+    away: parseFloat(safeById("vipOddsAway")?.value) || 0,
+    over25: parseFloat(safeById("vipOddsOver25")?.value) || 0,
+    under25: parseFloat(safeById("vipOddsUnder25")?.value) || 0,
+    btts: parseFloat(safeById("vipOddsBTTS")?.value) || 0
+  };
+
+  function formToGoals(formStr) {
+    const s = String(formStr || "").toUpperCase().replace(/[^WDL]/g, "");
+    if (!s.length) return { gf: 1.2, ga: 1.2, m: 1 };
+    let pts = 0;
+    for (const c of s) { if (c==="W") pts+=3; else if(c==="D") pts+=1; }
+    const avgPts = pts / s.length;
+    return { gf: 0.6 + (avgPts / 3) * 1.6, ga: 2.4 - (avgPts / 3) * 1.6, m: Math.max(1,s.length) };
+  }
+
+  const tA = formToGoals(formAraw), tB = formToGoals(formBraw);
+
+  return {
+    league: selectedLeague,
+    teamA, teamB,
+    h2h: h2hRaw,
+    formA: formAraw,
+    formB: formBraw,
+    home: { goals_for: +tA.gf.toFixed(2), goals_against: +tA.ga.toFixed(2), matches: tA.m },
+    away: { goals_for: +tB.gf.toFixed(2), goals_against: +tB.ga.toFixed(2), matches: tB.m },
+    odds
+  };
+}
+
+/* ==========================
+   FORM & H2H PARSING
+========================== */
+function parseFormLocked(formRaw, teamSide = "home") {
+  if (!formRaw) return { score: 0.5, weight: 0.5 };
+
+  let s = String(formRaw).toUpperCase().replace(/[^WDL]/g, "");
+  const MAX_MATCHES = 8;
+  if (s.length > MAX_MATCHES) s = s.slice(0, MAX_MATCHES);
+  if (s.length < 3) return { score: 0.5, weight: 0.4 };
+
+  let pts = 0;
+  for (const c of s) {
+    if (c === "W") pts += 3;
+    else if (c === "D") pts += 1;
+  }
+
+  const rawScore = pts / (3 * s.length);
+  const sideBoost = teamSide === "home" ? 1.05 : 0.95;
+  const reliability = clamp(0.6 + (s.length / MAX_MATCHES) * 0.4);
+
+  return { score: clamp(rawScore * sideBoost), weight: reliability };
+}
+
+function parseH2H(h2hRaw) {
+  if (!h2hRaw) return { home: 0.33, draw: 0.34, away: 0.33 };
+
+  const HALF_LIFE_DAYS = 365;
+  const now = Date.now();
+
+  let home = 0, draw = 0, away = 0, totalWeight = 0;
+
+  const parts = String(h2hRaw)
+    .replace(/[^\d\-\s:,]/g, '')
+    .split(/[,\n;]/)
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  for (const p of parts) {
+    let g1, g2, weight = 1;
+    const dated = p.match(/^(\d{4}-\d{2}-\d{2})\s+(\d+)\s*-\s*(\d+)$/);
+    const plain = p.match(/^(\d+)\s*-\s*(\d+)$/);
+
+    if (dated) {
+      const date = new Date(dated[1]).getTime();
+      g1 = +dated[2]; g2 = +dated[3];
+      if (!isNaN(date)) {
+        const ageDays = Math.max(0, (now - date) / 86400000);
+        weight = Math.exp(-ageDays / HALF_LIFE_DAYS);
+      }
+    } else if (plain) {
+      g1 = +plain[1]; g2 = +plain[2]; weight = 0.6;
+    } else continue;
+    if (isNaN(g1) || isNaN(g2)) continue;
+
+    if (g1 > g2) home += weight;
+    else if (g1 === g2) draw += weight;
+    else away += weight;
+
+    totalWeight += weight;
+  }
+
+  if (!totalWeight) return { home: 0.33, draw: 0.34, away: 0.33 };
+
+  const cap = 0.45;
+  return { home: clamp(home / totalWeight, 0.15, cap), draw: clamp(draw / totalWeight, 0.15, cap), away: clamp(away / totalWeight, 0.15, cap) };
+}
+
+/* ==========================
+   ELO & EXPECTED GOALS
+========================== */
+function computeELO(input) {
+  const fA = parseFormLocked(input.formA, "home");
+  const fB = parseFormLocked(input.formB, "away");
+  const h2h = parseH2H(input.h2h);
+
+  let eloA = 0.5 * fA.score * fA.weight + 0.3 * h2h.home + 0.2 * (1 - h2h.away);
+  let eloB = 0.5 * fB.score * fB.weight + 0.3 * h2h.away + 0.2 * (1 - h2h.home);
+
+  // Boost H2H if strong even with weak form
+  const h2hBoost = (h2h.home + h2h.away) / 0.7; // normalized
+  if ((input.home.goals_for + input.away.goals_for)/2 < 1.2) {
+    eloA *= h2hBoost;
+    eloB *= h2hBoost;
+  }
+
+  return { eloA: clamp(eloA, 0.2, 1.8), eloB: clamp(eloB, 0.2, 1.8) };
+}
+
+function calculateLambda(input, elo) {
+  const homeAdv = 1.15;
+  const h2hAvg = avgGoalsFromH2H(input.h2h || '');
+
+  const attackA = input.home.goals_for * elo.eloA;
+  const defenseB = input.away.goals_against * elo.eloB;
+  const attackB = input.away.goals_for * elo.eloB;
+  const defenseA = input.home.goals_against * elo.eloA;
+
+  let lambdaA = homeAdv * attackA * (1 / Math.max(0.6, defenseB));
+  let lambdaB = attackB * (1 / Math.max(0.6, defenseA));
+
+  // H2H dynamic injection (strong influence)
+  const formFactor = (input.home.goals_for + input.away.goals_for) / 2;
+  const h2hFactor = h2hAvg / 2.5; // normalize
+  const combinedFactor = Math.max(1, h2hFactor * (1 / Math.max(0.5, 1 - formFactor / 2)));
+  lambdaA *= combinedFactor;
+  lambdaB *= combinedFactor;
+
+  // League bias
+  const LEAGUE_GOAL_BIAS = { /* same as before */ };
+  const leagueKey = normalizeLeagueName(input.league);
+  const bias = LEAGUE_GOAL_BIAS[leagueKey] ?? 1.0;
+  lambdaA *= bias; lambdaB *= bias;
+
+  return { lambdaA: clamp(lambdaA, 0.5, 3.4), lambdaB: clamp(lambdaB, 0.4, 3.0) };
+}
+
+function getFormStrength(formStr) {
+  // Convert form string like "WWDL" or "WDLWL" into a numeric strength 0–1
+  if (!formStr || typeof formStr !== "string") return 0.5; // neutral if missing
+  const form = formStr.toUpperCase();
+  const points = form.split("").reduce((sum, c) => {
+    if (c === "W") return sum + 1;
+    if (c === "D") return sum + 0.5;
+    return sum + 0; // L or unknown
+  }, 0);
+  return points / form.length; // 0–1
+}
+
+/* ==========================
+   LOSS STREAK / PAUSE BETTING PROTECTION
+========================== */
+function shouldPauseBetting() {
+  // Use a global or window-scoped tracker
+  window.VIP_BET_HISTORY = window.VIP_BET_HISTORY || [];
+
+  // Configurable thresholds
+  const maxConsecutiveLosses = 3;   // pause after 3 consecutive losing bets
+  const lookback = 5;               // look at last N bets
+
+  // Only check recent bets
+  const recentBets = window.VIP_BET_HISTORY.slice(-lookback);
+
+  if (recentBets.length === 0) return false;
+
+  // Count consecutive losses
+  let consecutiveLosses = 0;
+  for (let i = recentBets.length - 1; i >= 0; i--) {
+    if (recentBets[i].won === false) {
+      consecutiveLosses++;
+      if (consecutiveLosses >= maxConsecutiveLosses) {
+        console.warn("⏸️ Betting paused: loss streak detected");
+        return true;
+      }
+    } else {
+      break; // streak ended
+    }
+  }
+
+  return false;
+}
+
+/* ==========================
+   Call this after each match result to log bet outcomes
+========================== */
+function logVipBetResult(matchId, won) {
+  window.VIP_BET_HISTORY = window.VIP_BET_HISTORY || [];
+  window.VIP_BET_HISTORY.push({ matchId, won, timestamp: Date.now() });
+}
+
+
+/* ==========================
+   SCORE MATRIX & MARKETS
+========================== */
+function buildScoreMatrix(lambdaA, lambdaB) {
+  lambdaA = clamp(safeNum(lambdaA, 1.3), 0.7, 3.4);
+  lambdaB = clamp(safeNum(lambdaB, 1.2), 0.6, 3.2);
+
+
+  const MAX_GOALS = 12;
+  const matrix = [];
+  let total = 0;
+
+  for (let h = 0; h <= MAX_GOALS; h++) {
+    for (let a = 0; a <= MAX_GOALS; a++) {
+      const p = poissonPMF(h, lambdaA) * poissonPMF(a, lambdaB);
+      if (!p || !isFinite(p)) continue;
+      total += p;
+      matrix.push({ score: `${h}-${a}`, prob: p, h, a });
+    }
+  }
+
+  matrix.forEach(r => (r.prob /= total));
+  matrix.sort((a, b) => b.prob - a.prob);
+  return { matrix, matrixArray: matrix };
+}
+
+function deriveMarkets(matrixObj, probabilities, input) {
+  const matrix = matrixObj?.matrix;
+
+  if (!Array.isArray(matrix) || !matrix.length) {
+    return {
+      home: 0.33,
+      draw: 0.33,
+      away: 0.33,
+      over25: 0.33,
+      under25: 0.33,
+      btts: 0.33
+    };
+  }
+
+  let pHome = 0,
+      pDraw = 0,
+      pAway = 0,
+      over25 = 0,
+      under25 = 0,
+      btts = 0,
+      total = 0;
+
+  matrix.forEach(r => {
+    const p = safeNum(r.prob, 0);
+    total += p;
+
+    if (r.h > r.a) pHome += p;
+    else if (r.h === r.a) pDraw += p;
+    else pAway += p;
+
+    if (r.h + r.a > 2) over25 += p;
+    else under25 += p;
+
+    if (r.h > 0 && r.a > 0) btts += p;
+  });
+
+  const norm = x => (total ? x / total : 0);
+
+  // ✅ renamed to avoid redeclaration crash
+  const derived = {
+    home: norm(pHome),
+    draw: norm(pDraw),
+    away: norm(pAway),
+    over25: norm(over25),
+    under25: norm(under25),
+    btts: norm(btts)
+  };
+
+  // 🔥 H2H strong + weak form adjustment
+  const h2hAvg = avgGoalsFromH2H(input?.h2h || "");
+  const weakForm =
+    input?.home?.goals_for < 1.2 ||
+    input?.away?.goals_for < 1.2;
+
+  if (h2hAvg > 2.7 && weakForm) {
+    derived.over25 += 0.035;
+    derived.under25 -= 0.035;
+
+  }
+
+  // 🔒 Clamp safely
+  Object.keys(derived).forEach(k => {
+    derived[k] =
+      k === "btts"
+        ? clamp(derived[k], 0.05, 0.78)
+        : clamp(derived[k], 0.05, 0.72);
+  });
+
+  return derived;
+}
+
+
+/* ==========================
+   NAVIGATION
+========================== */
+safeById("openTipsterBtn")?.addEventListener("click", () => {
+  window.location.href = "tipster.html";
+});
+
+
+
+/* ==========================
+   H2H & FORM UTILS
+========================== */
+function avgGoalsFromH2H(h2hRaw) {
+  if (!h2hRaw) return 0;
+  const parts = String(h2hRaw).split(/[,\n;]/).map(s => s.trim()).filter(Boolean);
+  let totalGoals = 0, count = 0;
+  parts.forEach(p => {
+    const dated = p.match(/^\d{4}-\d{2}-\d{2}\s+(\d+)\s*-\s*(\d+)$/);
+    const plain = p.match(/^(\d+)\s*-\s*(\d+)$/);
+    let g1, g2;
+    if (dated) { g1 = +dated[1]; g2 = +dated[2]; }
+    else if (plain) { g1 = +plain[1]; g2 = +plain[2]; }
+    else return;
+    if (!isNaN(g1) && !isNaN(g2)) { totalGoals += g1 + g2; count++; }
+  });
+  return count ? totalGoals / count : 0;
+}
+
+function clamp(value, min = 0, max = 1) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function safeNum(x, fallback = 0) {
+  const n = parseFloat(x);
+  return isNaN(n) ? fallback : n;
+}
+
+/* ==========================
+   PROBABILITY CALIBRATION
+========================== */
+function calibrateProbability(p, market = '') {
+  p = clamp(p, 0, 1);
+  if (market === 'btts') {
+    if (p < 0.60) return p * 0.95;
+    if (p < 0.68) return p * 0.975;
+    return p;
+  }
+  if (market === 'over25' || market === 'under25') {
+    if (p < 0.55) return p * 0.95;
+    if (p < 0.65) return p * 0.975;
+    return p;
+  }
+  if (p < 0.55) return p * 0.90;
+  if (p < 0.65) return p * 0.95;
+  return p;
+}
+
+function isMarketConflict(probabilities, market) {
+  if (!probabilities) return false;
+  if (market === 'under25' && probabilities.over25 > 0.66) return true;
+  if (market === 'over25' && probabilities.under25 > 0.66) return true;
+  if (market === 'btts' && probabilities.over25 < 0.50) return true;
+  return false;
+}
+
+function getMinProb(market, league, h2hAvg = 0) {
+  let base = { home:0.64, draw:0.62, away:0.64, over25:0.60, btts:0.61, under25:0.67 }[market] || 0.62;
+  if (/premier|laliga|serie a|bundesliga|ligue 1/i.test(league || "")) base -= 0.01;
+  if (market === 'under25' && h2hAvg >= 2.5) base = Math.min(base, 0.55);
+  if (market === 'over25' && h2hAvg >= 2.5) base = Math.max(base, 0.60);
+  return base;
+}
+
+/* ==========================
+   SCORE MATRIX BUILDER
+   (Poisson-based, UI-safe)
+========================== */
+function scoreMatrix(input, meta = {}) {
+  const maxGoals = 5;
+
+  const lambdaHome = clamp(safeNum(meta.lambdaHome, 1.25), 0.2, 3.5);
+  const lambdaAway = clamp(safeNum(meta.lambdaAway, 1.10), 0.2, 3.5);
+
+  const matrix = [];
+
+  for (let h = 0; h <= maxGoals; h++) {
+    for (let a = 0; a <= maxGoals; a++) {
+      const prob =
+        poisson(lambdaHome, h) *
+        poisson(lambdaAway, a);
+
+      matrix.push({
+        h,
+        a,
+        score: `${h}-${a}`,
+        prob
+      });
+    }
+  }
+
+  // Normalize
+  const total = matrix.reduce((s, r) => s + r.prob, 0) || 1;
+  matrix.forEach(r => r.prob /= total);
+
+  return {
+    matrix,
+    lambdaHome,
+    lambdaAway
+  };
+}
+
+
+
+/* ==========================
+   VIP PICK GENERATOR (PRODUCTION READY)
+========================= */
+function generateVIP(probabilities, input) {
+  const odds = input?.odds || {};
+  const league = (input?.league || "").toLowerCase();
+  const h2hAvg = avgGoalsFromH2H(input.h2h?.scores || input.h2h?.raw || "");
+
+  const candidates = [];
+  const strongThreshold = 0.62; // probability threshold for 1X2
+  const minOdds1X2 = 1.50;     // minimal odds for 1X2
+  const minEV = 0.05;            // minimal positive EV
+
+  ["home", "draw", "away"].forEach(k => {
+  const prob = safeNum(probabilities[k], 0);
+  const odd = safeNum(odds[k], 0);
+  const ev = prob * odd - 1;
+
+  // 🔹 Market-specific odds floor
+  const minOdds =
+    k === "draw" ? 2.80 : 1.50; // draw stays protected
+
+  // 🔒 Anti-trap: weak favourites blocked
+if ((k ===  "home" || k === "away") && odd < 1.60 && prob < 0.66) return;
+
+  if (prob >= strongThreshold && odd >= minOdds && ev >= minEV) {
+    candidates.push({
+      k,
+      market: k,
+      v: Math.min(prob + 0.05, 0.99),
+      odds: odd,
+      ev,
+      confidence: Math.round(prob * 100),
+      risk: prob >= 0.72 ? "SAFE" : "MEDIUM",
+      matchId: `${input.league}|${input.teamA} vs ${input.teamB}`,
+      time: new Date().toLocaleTimeString()
+    });
+  }
+});
+
+
+  // GOALS MODE (BTTS/OVER25/UNDER25) fallback if no strong 1X2
+  if (!candidates.length) {
+    if (probabilities.btts >= 0.58 && odds.btts >= 1.6) {
+      const ev = probabilities.btts * odds.btts - 1;
+      if (ev >= 0.06) {
+        candidates.push({
+          k: "btts",
+          market: "btts",
+          v: probabilities.btts,
+          odds: odds.btts,
+          ev,
+          confidence: Math.round(probabilities.btts * 100),
+          risk: probabilities.btts >= 0.64 ? "SAFE" : "MEDIUM",
+          matchId: `${input.league}|${input.teamA} vs ${input.teamB}`,
+          time: new Date().toLocaleTimeString()
+        });
+      }
+    }
+    if (probabilities.over25 >= 0.60 && odds.over25 >= 1.6) {
+      const ev = probabilities.over25 * odds.over25 - 1;
+      if (ev >= 0.06) {
+        candidates.push({
+          k: "over25",
+          market: "over25",
+          v: probabilities.over25,
+          odds: odds.over25,
+          ev,
+          confidence: Math.round(probabilities.over25 * 100),
+          risk: probabilities.over25 >= 0.65 ? "SAFE" : "MEDIUM",
+          matchId: `${input.league}|${input.teamA} vs ${input.teamB}`,
+          time: new Date().toLocaleTimeString()
+        });
+      }
+    }
+  }
+
+  if (!candidates.length) return [];
+
+  // sort strongest first
+  candidates.sort((a, b) => (b.ev - a.ev) || (b.v - a.v));
+
+  // return only top 2 picks
+  return candidates.slice(0, 2);
+}
+
+
+
+/* ==========================
+   PICK EXPLANATION
+========================== */
+function explainPick(pick, probabilities, input, meta = {}) {
+  if(!pick) return "";
+  const lines = [];
+  const market = pick.market || pick.k;
+  const prob = pick.v ?? probabilities[market];
+  const odds = pick.odds ?? input?.odds?.[market];
+  const ev = computeEV(prob, odds);
+
+  if(prob >= 0.70) lines.push("Very strong probability edge");
+  else if(prob >= 0.64) lines.push("Strong probability edge");
+  else lines.push("Acceptable probability edge");
+
+  if(ev >= 0.15) lines.push("High expected value vs bookmaker odds");
+  else if(ev >= 0.08) lines.push("Positive expected value");
+
+  if(market === "under25" || market === "over25") {
+    const meanGoals = meta.meanGoals;
+    if(meanGoals) {
+      if(market==="under25" && meanGoals <= 2.2) lines.push(`Match projects low goals (${meanGoals.toFixed(1)} expected)`);
+      if(market==="over25" && meanGoals >= 2.6) lines.push(`Match projects high goals (${meanGoals.toFixed(1)} expected)`);
+    }
+  }
+  if(market==="btts" && prob >= 0.62) lines.push("Both teams show scoring potential");
+
+  if(!meta.trap?.isTrap) lines.push("No major trap signals detected");
+  else lines.push("Proceed with caution: market shows trap indicators");
+
+  if(pick.risk === "safe") lines.push("Low-risk selection by model standards");
+  else if(pick.risk === "medium") lines.push("Medium-risk selection with controlled exposure");
+
+  return "Why this pick?\n• "+lines.join("\n• ");
+}
+
+function validateFormInput(input) {
+  if (!input || typeof input !== "object") {
+    alert("Invalid form input.");
+    return false;
+  }
+
+  // Teams check
+  if (!input.teamA || !input.teamB) {
+    alert("Please enter both Team A and Team B names.");
+    return false;
+  }
+
+  // League check
+  const league = (input.league ?? "").toString().trim();
+  if (
+    !league ||
+    league.toLowerCase() === "select league" ||
+    league.toLowerCase() === "select cup"
+  ) {
+    alert("Please select a valid League or Cup.");
+    return false;
+  }
+
+  // Odds check
+  const odds = input.odds || {};
+  if (
+    !Number.isFinite(odds.home) || odds.home <= 1 ||
+    !Number.isFinite(odds.draw) || odds.draw <= 1 ||
+    !Number.isFinite(odds.away) || odds.away <= 1
+  ) {
+    alert("Please provide valid odds (greater than 1.00) for Home, Draw and Away.");
+    return false;
+  }
+
+  return true;
+}
+
+
+/* ==========================
+   EV, CONFIDENCE & STAKE
+========================== */
+function computeEV(prob, odds) {
+  if(typeof prob!=='number'||typeof odds!=='number'||odds<=1) return 0;
+  return (prob*odds)-1;
+}
+
+function computeOverallConfidence(result, probabilities) {
+  if(result?.vipPrimary?.length) return Math.round(result.vipPrimary[0].v*100);
+  const p = [ clamp(probabilities.home), clamp(probabilities.draw), clamp(probabilities.away) ];
+  let entropy = 0;
+  p.forEach(x => { if(x>0) entropy -= x*Math.log2(x); });
+  const maxEntropy = Math.log2(3);
+  return Math.round(((maxEntropy-entropy)/maxEntropy)*100);
+}
+
+function computeStakeLevel(conf) {
+  if(conf>=75) return "MEDIUM";
+  if(conf>=60) return "LOW";
+  return "MINIMAL";
+}
+
+function computeSharpIndicator(prob, odds) {
+  prob = safeNum(prob,0); odds=safeNum(odds,0);
+  if(prob<=0||odds<=1) return 0;
+  return Math.round((prob-(1/odds))*100);
+}
+
+function shouldNoBet(probabilities) {
+  if(!probabilities) return { noBet:true, reason:"Invalid probabilities" };
+  const { home=0, draw=0, away=0, over25=0, under25=0, btts=0 } = probabilities;
+  const maxProb = Math.max(home, draw, away, over25, under25, btts);
+  if(maxProb < 0.45) return { noBet:true, reason:"No strong probability edge" };
+  if(over25>0.52 && under25>0.48) return { noBet:true, reason:"Over / Under conflict" };
+  if(over25<0.48 && btts<0.48 && under25<0.48) return { noBet:true, reason:"Goal markets unclear" };
+  return { noBet:false };
+}
+
+function safeById(id) {
+  const el = document.getElementById(id);
+  if(!el) console.warn(`Missing element: #${id}`);
+  return el || null;
+}
+
+/* ==========================
+   CORRECT SCORE GENERATOR
+========================== */
+function generateCorrectScores(matrix, probabilities) {
+  if(!Array.isArray(matrix)||matrix.length===0) return [];
+  if(!probabilities||typeof probabilities!=="object") return [];
+  const strongSignal = Math.max(probabilities.home, probabilities.away)>0.55||probabilities.under25>0.60||probabilities.over25>0.60;
+  if(!strongSignal) return [];
+  const sorted = matrix.filter(m=>safeNum(m.prob,0)>=0.05).sort((a,b)=>b.prob-a.prob);
+  if(!sorted.length) return [];
+  const top2 = sorted.slice(0,2);
+  return top2.map((m,index)=>({
+    score:m.score,
+    probability:clamp(safeNum(m.prob,0),0.05,0.35),
+    risk:index===0?"SAFE":"MEDIUM",
+    tag:"Correct Score",
+    top:index===0
+  }));
+}
+
+
+/* ==========================
+   HELPER: COMBINATIONS
+========================== */
+function combinations(arr, k) {
+  const result = [];
+  function backtrack(start, combo) {
+    if (combo.length === k) {
+      result.push([...combo]);
+      return;
+    }
+    for (let i = start; i < arr.length; i++) {
+      combo.push(arr[i]);
+      backtrack(i + 1, combo);
+      combo.pop();
+    }
+  }
+  backtrack(0, []);
+  return result;
+}
+
+/* ==========================
+   HELPER: COMBINED EV
+========================== */
+function combinedEv(acca) {
+  return acca.reduce((total, p) => total + safeNum(p.ev, 0), 0);
+}
+
+/* ==========================
+   BUILD VIP ACCA POOL (FIXED FOR UNDER2.5)
+========================= */
+function buildVipAccas(accaPool) {
+  if (!Array.isArray(accaPool) || accaPool.length === 0) {
+    return { noAcca: true, single: [] };
+  }
+
+  // 🔹 Only strongest pick per match per market
+  const byMatch = {};
+  accaPool.forEach(p => {
+    if (!p?.matchId || !p.k) return;
+    const key = `${p.matchId}|${p.k}`;
+    if (!byMatch[key] || p.ev > byMatch[key].ev) {
+      byMatch[key] = p;
+    }
+  });
+
+  let picks = Object.values(byMatch);
+
+  // 🔹 HARD FILTERS: strict for 1X2, relaxed for goals markets
+  picks = picks.filter(p => {
+    if (["home","draw","away"].includes(p.k)) {
+      return p.ev >= 0.08 && p.v >= 0.58 && p.odds >= 1.6 && p.risk !== "HIGH";
+    } else { // BTTS / Over2.5 / Under2.5 fallback
+      // ⚡ lowered thresholds to allow under2.5
+      return p.ev >= 0.05 && p.v >= 0.50 && p.odds >= 1.5;
+    }
+  });
+
+  // 🔹 Not enough picks for ACCA?
+  if (picks.length < 2) {
+    return { noAcca: true, single: picks };
+  }
+
+  // 🔹 Sort strongest first (EV then probability)
+  picks.sort((a, b) => (b.ev - a.ev) || (b.v - a.v));
+
+  // 🔹 Core ACCA = best 2 picks, Boost ACCA = top 3 picks
+  return {
+    noAcca: false,
+    coreAcca: picks.slice(0, 2),
+    boostAcca: picks.slice(0, 3),
+    single: picks.slice(0, 1)
+  };
+}
+
+function renderVipAccas() {
+  const accaData = buildVipAccas(window.VIP_ACCA_POOL || []);
+
+  const noAccaEl = document.getElementById("noAcca");
+  const coreEl = document.getElementById("coreAcca");
+  const boostEl = document.getElementById("boostAcca");
+
+  // hide all first
+  [noAccaEl, coreEl, boostEl].forEach(el => el?.classList.add("hidden"));
+
+  const rowHTML = p => `
+    <tr class="border-b border-white/5 text-xs sm:text-sm">
+      <td class="py-2">
+        <div class="text-[10px] text-gray-400">${p.matchId || ""}</div>
+        <div class="font-semibold">${(p.label || p.market || p.k || "N/A").toString().toUpperCase()}</div>
+      </td>
+      <td class="text-center whitespace-nowrap">${(safeNum(p.v, 0) * 100).toFixed(1)}%</td>
+      <td class="text-center whitespace-nowrap">${safeNum(p.odds, 1)}</td>
+      <td class="hidden sm:table-cell text-center">${safeNum(p.ev, 0).toFixed(2)}</td>
+    </tr>
+  `;
+
+  const renderTable = (el, picks) => {
+    if (!el || !Array.isArray(picks) || picks.length === 0) return;
+    const tbody = el.querySelector("tbody");
+    if (!tbody) return;
+
+    tbody.innerHTML = "";
+    let totalOdds = 1;
+
+    picks.forEach(p => {
+      totalOdds *= safeNum(p.odds, 1);
+      tbody.innerHTML += rowHTML(p);
+    });
+
+    const footer = el.querySelector(".acca-footer");
+    if (footer) footer.textContent = `Total Odds: ${totalOdds.toFixed(2)}`;
+    el.classList.remove("hidden");
+
+    if (typeof wrapTable === "function") wrapTable(el);
+  };
+
+  // 🔹 Single pick fallback
+  if (accaData.noAcca && accaData.single.length > 0) {
+    noAccaEl?.classList.remove("hidden");
+    noAccaEl.textContent = "Only single VIP pick available — waiting for more matches";
+    renderTable(coreEl, accaData.single);
+    return;
+  }
+
+  // 🔹 Core ACCA (best 2 picks)
+  if (accaData.coreAcca && accaData.coreAcca.length > 0) {
+    renderTable(coreEl, accaData.coreAcca);
+  }
+
+  // 🔹 Boost ACCA (best 3 picks)
+  if (accaData.boostAcca && accaData.boostAcca.length > 0) {
+    renderTable(boostEl, accaData.boostAcca);
+  }
+
+  // 🔹 If truly no picks
+  if (!accaData.coreAcca?.length && !accaData.boostAcca?.length && !accaData.single?.length) {
+    noAccaEl?.classList.remove("hidden");
+    noAccaEl.textContent = "No VIP picks available for ACCA.";
+  }
+}
+
+
+/* ==========================
+   DOM-SAFE TABLE WRAPPER
+========================== */
+function wrapTable(container) {
+  const table = container?.querySelector("table");
+  if (!table || table.parentElement.classList.contains("table-wrapper")) return;
+  const wrapper = document.createElement("div");
+  wrapper.className = "table-wrapper overflow-x-auto touch-pan-x";
+  table.parentNode.insertBefore(wrapper, table);
+  wrapper.appendChild(table);
+}
+
+
+
+
+function parseH2HWithForm({ h2h, formA, formB }) {
+  const h2hProbs = parseH2H(h2h || '') || { home: 0, draw: 0, away: 0 };
+  const fA = parseFormLocked(formA, "home") || { score: 0, weight: 0 };
+  const fB = parseFormLocked(formB, "away") || { score: 0, weight: 0 };
+
+  const home = clamp(0.4 * h2hProbs.home + 0.6 * fA.score * fA.weight, 0, 1);
+  const draw = clamp(
+    0.4 * h2hProbs.draw + 0.3 * (fA.score * fA.weight + fB.score * fB.weight) * 0.5,
+    0,
+    1
+  );
+  const away = clamp(0.4 * h2hProbs.away + 0.6 * fB.score * fB.weight, 0, 1);
+
+  const total = home + draw + away || 1;
+  return {
+    home: home / total,
+    draw: draw / total,
+    away: away / total
+  };
+}
+
+
+function seededRandom(seed) {
+  let t = seed + 0x6D2B79F5;
+  return function () {
+    t += 0x6D2B79F5;
+    let r = Math.imul(t ^ t >>> 15, 1 | t);
+    r ^= r + Math.imul(r ^ r >>> 7, 61 | r);
+    return ((r ^ r >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+
+function normalizeRisk(risk) {
+  if (typeof risk === "string") {
+    const r = risk.toLowerCase();
+    if (r === "green" || r === "safe") return "SAFE";
+    if (r === "yellow" || r === "medium") return "MEDIUM";
+    if (r === "red" || r === "high") return "HIGH";
+  }
+  if (risk && typeof risk === "object" && risk.level) return normalizeRisk(risk.level);
+  return "MEDIUM";
+}
+
+/* ==========================
+   MAIN PREDICTALL (H2H + EV SAFE)
+========================== */
+function predictAll(input = {}) {
+
+  /* ==========================
+     SANITIZE INPUT
+  ========================== */
+  input.teamA = String(input.teamA ?? "");
+  input.teamB = String(input.teamB ?? "");
+  input.league = String(input.league ?? "");
+  input.formA = String(input.formA ?? "");
+  input.formB = String(input.formB ?? "");
+
+  input.h2h = input.h2h || {};
+  input.h2h.homeTeam = String(input.h2h.homeTeam ?? "");
+  input.h2h.awayTeam = String(input.h2h.awayTeam ?? "");
+
+  input.odds = input.odds || {};
+  input.odds.home = safeNum(input.odds.home, 0);
+  input.odds.draw = safeNum(input.odds.draw, 0);
+  input.odds.away = safeNum(input.odds.away, 0);
+  input.odds.over25 = safeNum(input.odds.over25 ?? input.odds.over, 0);
+  input.odds.under25 = safeNum(input.odds.under25 ?? input.odds.under, 0);
+  input.odds.btts = safeNum(input.odds.btts ?? input.odds.bttsYes, 0);
+
+  /* ==========================
+     CORE MODEL
+  ========================== */
+  const elo = computeELO(input);
+  let { lambdaA, lambdaB } = calculateLambda(input, elo);
+
+  const matrixObj = buildScoreMatrix(lambdaA, lambdaB);
+  let probabilities = structuredClone(deriveMarkets(matrixObj));
+
+  /* ==========================
+     H2H + FORM ADJUSTMENT (1X2 ONLY)
+  ========================== */
+  const h2hProbs = parseH2HWithForm({
+    h2h: input.h2h,
+    formA: input.formA,
+    formB: input.formB
+  });
+
+  probabilities.home = h2hProbs.home;
+  probabilities.draw = h2hProbs.draw;
+  probabilities.away = h2hProbs.away;
+
+  /* ==========================
+     NORMALIZE 1X2 ONLY
+  ========================== */
+  const totalHDA = probabilities.home + probabilities.draw + probabilities.away;
+  if (totalHDA > 0) {
+    probabilities.home /= totalHDA;
+    probabilities.draw /= totalHDA;
+    probabilities.away /= totalHDA;
+  }
+
+  /* ==========================
+     CALIBRATION
+  ========================== */
+  Object.keys(probabilities).forEach(k => {
+    let cap = 0.72;
+    if (k === 'btts') cap = 0.78;
+    if (k === 'over25' || k === 'under25') cap = 0.75;
+
+    probabilities[k] = clamp(
+      calibrateProbability(probabilities[k], k),
+      0.05,
+      cap
+    );
+  });
+
+  /* ==========================
+     H2H FLOOR OVERRIDES (BTTS + Over25)
+  ========================== */
+  const h2hAvg = avgGoalsFromH2H(input.h2h?.scores || input.h2h?.raw);
+  const weakForm = getFormStrength(input.formA) < 0.45 && getFormStrength(input.formB) < 0.45;
+  const h2hBoost = h2hGoalPressure(h2hAvg); // 0–0.18
+
+  if (h2hAvg >= 2.5) {
+    probabilities.btts = Math.max(probabilities.btts, 0.61 + h2hBoost);
+    const minOver = weakForm ? 0.62 : 0.60;
+    probabilities.over25 = Math.max(probabilities.over25, minOver + h2hBoost);
+  }
+  if (h2hAvg >= 2.7) {
+  probabilities.under25 = clamp(probabilities.under25 - 0.12, 0.05, 0.52);
+}
+
+
+  /* ==========================
+     NO BET CHECK
+  ========================== */
+  const noBetCheck = shouldNoBet(probabilities);
+  if (noBetCheck.noBet) {
+    const bankroll = Number.isFinite(input.bankroll) ? input.bankroll : 100;
+    const result = {
+      input,
+      probabilities,
+      noBet: true,
+      noBetReason: noBetCheck.reason,
+      vipPrimary: [],
+      vipTicket: [],
+      correctScores: [],
+      confidence: 0,
+      stakeLevel: "NONE",
+      stake: 0,
+      bankroll,
+      bestMarket: null,
+      trap: null,
+      sharp: {}
+    };
+    logPrediction(result);
+    return result;
+  }
+
+  /* ==========================
+     TRAP DETECTION
+  ========================== */
+  const trap = typeof detectTrapMatch === "function"
+    ? detectTrapMatch(input, probabilities)
+    : null;
+
+  /* ==========================
+     VIP PICKS (EV + H2H SAFE)
+  ========================== */
+  const vipPrimaryRaw = Array.isArray(generateVIP(probabilities, input))
+    ? generateVIP(probabilities, input)
+    : [];
+
+  // Separate strong 1X2 vs fallback goals markets
+  const strongThreshold = 0.62;
+  const minOdds = 2.0;
+  const evThreshold = 0.05;
+
+  let vip1X2 = [];
+  let vipFallback = [];
+
+  vipPrimaryRaw.forEach(p => {
+    const pickOdds = safeNum(p.odds ?? input.odds?.[p.k], 0);
+    const pickEV = computeEV(safeNum(p.v, 0), pickOdds);
+
+    if (["home","draw","away"].includes(p.k) && pickOdds >= minOdds && safeNum(p.v,0) >= strongThreshold && pickEV >= evThreshold) {
+      vip1X2.push({...p, v: Math.min(p.v + 0.05, 0.99)});
+    } else {
+      vipFallback.push(p);
+    }
+  });
+
+  let vipPrimary = vip1X2.length ? vip1X2 : vipFallback;
+
+  if (!vipPrimary.length) {
+    const bankroll = Number.isFinite(input.bankroll) ? input.bankroll : 100;
+    const result = {
+      input,
+      probabilities,
+      noBet: true,
+      noBetReason: "Market shows no positive expected value today. Capital preservation mode active.",
+      vipPrimary: [],
+      vipTicket: [],
+      correctScores: [],
+      confidence: 0,
+      stakeLevel: "NONE",
+      stake: 0,
+      bankroll,
+      bestMarket: null,
+      trap,
+      sharp: {}
+    };
+    logPrediction(result);
+    return result;
+  }
+
+  /* ==========================
+     FORMAT VIP PICKS
+  ========================== */
+  vipPrimary = vipPrimary.map(p => {
+    const key =
+      typeof p?.k === "string" && p.k.trim()
+        ? p.k
+        : typeof p?.market === "string"
+        ? p.market
+        : typeof p?.team === "string"
+        ? p.team
+        : "N/A";
+    return { ...p, k: key, label: key.toUpperCase(), risk: normalizeRisk(p.risk) };
+  });
+
+  const vipTicket = vipPrimary.map(p => ({ ...p }));
+
+  vipPrimary.forEach(pick => {
+    pick.explanation = explainPick(
+      pick,
+      probabilities,
+      input,
+      { meanGoals: lambdaA + lambdaB, trap }
+    );
+  });
+
+  /* ==========================
+     ADD VIP PICKS TO ACCA POOL
+  ========================== */
+  if (!window.VIP_ACCA_POOL) window.VIP_ACCA_POOL = [];
+  vipPrimary.forEach(pick => {
+    const accaPick = {
+      ...pick,
+      matchId: `${input.league}|${input.teamA} vs ${input.teamB}`,
+      odds: safeNum(pick.odds ?? input.odds?.[pick.k], 0),
+      ev: computeEV(pick.v, safeNum(pick.odds ?? input.odds?.[pick.k], 0)),
+      addedAt: Date.now()
+    };
+    const exists = window.VIP_ACCA_POOL.some(
+      p => p.matchId === accaPick.matchId && p.k === accaPick.k
+    );
+    if (!exists && accaPick.odds > 1) window.VIP_ACCA_POOL.push(accaPick);
+  });
+  renderVipAccas();
+
+  /* ==========================
+     CONFIDENCE & STAKE
+  ========================== */
+  const bankroll = Number.isFinite(input.bankroll) ? input.bankroll : 100;
+  const confidence = computeOverallConfidence({ vipPrimary }, probabilities);
+  const stake = vipPrimary.length
+    ? +(bankroll * 0.03 * safeNum(vipPrimary[0].v, 0)).toFixed(2)
+    : 0;
+
+  /* ==========================
+     FINAL RESULT
+  ========================== */
+  const result = {
+    input,
+    matrix: matrixObj,
+    matrixArray: matrixObj.matrix || [],
+    probabilities,
+    vipPrimary,
+    vipTicket,
+    correctScores: generateCorrectScores(matrixObj.matrix, probabilities),
+    confidence,
+    stakeLevel: stake > 0 ? "NORMAL" : "NONE",
+    stake,
+    bankroll,
+    bestMarket: vipPrimary.length ? {
+      k: vipPrimary[0].k,
+      label: vipPrimary[0].label,
+      prob: vipPrimary[0].v,
+      riskLevel: normalizeRisk(vipPrimary[0].risk)
+    } : null,
+    trap,
+    noBet: false,
+    noBetReason: null,
+    sharp: {
+      home: computeSharpIndicator(probabilities.home, input.odds.home),
+      draw: computeSharpIndicator(probabilities.draw, input.odds.draw),
+      away: computeSharpIndicator(probabilities.away, input.odds.away),
+      over25: computeSharpIndicator(probabilities.over25, input.odds.over25),
+      under25: computeSharpIndicator(probabilities.under25, input.odds.under25),
+      btts: computeSharpIndicator(probabilities.btts, input.odds.btts)
+    }
+  };
+
+  logPrediction(result);
+
+  if (result.input.league) result.leagueStats = computeLeagueAccuracy(result.input.league, result);
+
+  return result;
+}
+
+
+
+/* ==========================
+   BANKROLL RULE (UNCHANGED)
+========================== */
+function bankrollRule(stakeLevel) {
+  if (stakeLevel === "MEDIUM") return "2–3% bankroll";
+  if (stakeLevel === "LOW") return "1–2% bankroll";
+  return "≤1% bankroll";
+}
+
+/* ==========================
+   Rendering helpers (FIX ONLY)
+========================= */
+function renderVIP(result) {
+  if (!result) return;
+
+  const container = document.getElementById('vipResult');
+  if (!container) return;
+
+  // 🚫 NO BET HANDLER (ABSOLUTE PRIORITY)
+  if (result.noBet === true || result.noBetReason) {
+    container.innerHTML = `
+      <div class="p-4 rounded-xl border border-red-500/40 bg-red-900/20">
+        <div class="text-xl font-bold text-red-400 flex items-center gap-2">
+          🚫 NO BET
+        </div>
+        <div class="text-sm text-gray-300 mt-1">
+          ${escapeHtml(result.noBetReason || "Market conditions not suitable")}
+        </div>
+      </div>
+    `;
+    return; // ⛔ HARD STOP
+  }
+
+  // --- VIP PICKS DISPLAY ---
+  let html = `<div><strong>VIP Picks:</strong> `;
+
+  if (Array.isArray(result.vipPrimary) && result.vipPrimary.length) {
+    html += result.vipPrimary.map(p => {
+      const key = String(p.k || "").toUpperCase();
+      const prob = (safeNum(p.v, 0) * 100).toFixed(1);
+      const risk = normalizeRisk(p.risk);
+
+      const cls =
+        risk === 'SAFE' ? 'risk-safe' :
+        risk === 'MEDIUM' ? 'risk-medium' :
+        'risk-high';
+
+      return `<span class="${cls}">${key} (${prob}%)</span>`;
+    }).join(' ');
+  } else {
+    // This should rarely appear now; predictAll marks NO BET
+    html += '—';
+  }
+
+  /* -------- CONFIDENCE, STAKE & BANKROLL -------- */
+  html += `
+    <hr>
+    <div><strong>Confidence:</strong> ${safeNum(result.confidence, 0).toFixed(1)}%</div>
+    <div><strong>Recommended Stake:</strong> ${result.stakeLevel}</div>
+    <div><strong>Bankroll %:</strong>
+      ${result.stake && result.bankroll
+        ? ((result.stake / result.bankroll) * 100).toFixed(1) + '%'
+        : '0%'}
+    </div>
+  `;
+
+  html += `</div><hr>`;
+
+  // --- BEST MARKET ---
+  if (result.bestMarket) {
+    const risk = normalizeRisk(result.bestMarket.riskLevel);
+
+    const riskClass =
+      risk === "SAFE" ? "text-green-400" :
+      risk === "MEDIUM" ? "text-yellow-400" :
+      "text-red-400";
+
+    html += `
+      <div class="mt-4 p-4 rounded-xl border border-white/10 bg-black/40">
+        <div class="text-xs text-gray-400 mb-1">AUTO-SELECTED BEST MARKET</div>
+        <div class="text-lg font-bold ${riskClass}">
+          ${escapeHtml(result.bestMarket.label)}
+        </div>
+        <div class="text-sm text-gray-400">
+          Probability: ${(safeNum(result.bestMarket.prob, 0) * 100).toFixed(1)}%
+          • Risk: ${risk}
+        </div>
+      </div>
+    `;
+  }
+
+  container.innerHTML = html;
+}
+
+
+/* ==========================
+   Correct Score Render Logic
+========================== */
+function renderCorrectScores(scores) {
+  const section = document.getElementById("correct-score-section");
+  const list = document.getElementById("correct-score-list");
+
+  if (!section || !list) return;
+
+  list.innerHTML = "";
+
+  if (!Array.isArray(scores) || scores.length === 0) {
+    section.style.display = "none";
+    return;
+  }
+
+  // Filter extremely low noise
+  const valid = scores.filter(s =>
+    typeof s.score === "string" &&
+    Number.isFinite(s.probability) &&
+    s.probability >= 0.04
+  );
+
+  if (!valid.length) {
+    section.style.display = "none";
+    return;
+  }
+
+  // Sort & take top 2
+  const top = valid
+    .sort((a, b) => b.probability - a.probability)
+    .slice(0, 2);
+
+  section.style.display = "grid";
+
+  top.forEach((s, i) => {
+    const div = document.createElement("div");
+    div.className = `correct-score-item ${i === 0 ? "top" : ""}`;
+
+    div.innerHTML = `
+      <div class="score">${s.score}</div>
+      <div class="prob">${(s.probability * 100).toFixed(1)}%</div>
+    `;
+
+    list.appendChild(div);
+  });
+}
+
+
+function renderVipExpiry(expiresAt) {
+  const box = document.getElementById("vipExpiryBox");
+  if (!box) return;
+
+  if (!expiresAt) {
+    box.className = "vip-expiry danger";
+    box.textContent = "VIP expiry not set";
+    box.classList.remove("hidden");
+    return;
+  }
+
+  const expiry = new Date(expiresAt);
+  if (isNaN(expiry)) {
+    box.className = "vip-expiry danger";
+    box.textContent = "Invalid VIP expiry";
+    box.classList.remove("hidden");
+    return;
+  }
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  expiry.setHours(0,0,0,0);
+
+  const daysLeft = Math.floor((expiry - today) / 86400000);
+
+  box.classList.remove("hidden");
+
+  if (daysLeft < 0) {
+    box.className = "vip-expiry danger";
+    box.textContent = "❌ VIP expired";
+  } else if (daysLeft === 0) {
+    box.className = "vip-expiry warn";
+    box.textContent = "⚠️ VIP expires today";
+  } else {
+    box.className = "vip-expiry safe";
+    box.textContent = `⭐ VIP active — ${daysLeft} day${daysLeft > 1 ? "s" : ""} left`;
+  }
+}
+
+
+/* ==========================
+   Score Matrix & Graph (AUDIT FIX)
+========================== */
+function renderMatrixAndGraph(result) {
+  const matrixDiv = document.getElementById('matrixResult');
+  if (!matrixDiv) return;
+
+  // Use matrixArray for table display
+  const matrixArray = Array.isArray(result.matrixArray) ? result.matrixArray : [];
+  if (!matrixArray.length) {
+    matrixDiv.innerHTML = 'Run analysis to view the matrix & graph';
+    return;
+  }
+
+  // Determine top scoreline (highest probability)
+  const topScoreObj = matrixArray.reduce((max, cur) => (cur.prob > (max?.prob || 0) ? cur : max), null);
+  const topScore = topScoreObj?.score || null;
+
+  let html = '<h4>Top Scoreline Probabilities</h4>';
+  html += '<table class="market"><tr><th>Scoreline</th><th>Prob</th></tr>';
+
+  matrixArray.slice(0, 10).forEach(s => { // show top 10 for brevity
+    const highlight = s.score === topScore ? ' class="highlight"' : '';
+    html += `<tr${highlight}><td>${s.score}</td><td>${(safeNum(s.prob, 0) * 100).toFixed(1)}%</td></tr>`;
+  });
+  html += '</table>';
+
+  // Market bars
+  const probs = result.probabilities || {};
+  const markets = [
+    { key: 'home', label: 'Home Win', color: '#0fbd4a' },
+    { key: 'draw', label: 'Draw', color: '#ffc107' },
+    { key: 'away', label: 'Away Win', color: '#ff5c5c' },
+    { key: 'over25', label: 'Over 2.5', color: '#10b981' },
+    { key: 'under25', label: 'Under 2.5', color: '#8b5cf6' },
+    { key: 'btts', label: 'BTTS', color: '#3b82f6' }
+  ];
+
+  html += '<h4 style="margin-top:12px;">Market Probabilities</h4>';
+  html += '<div style="display:flex;flex-direction:column;gap:6px;">';
+
+  markets.forEach(m => {
+    const pct = clamp(safeNum(probs[m.key], 0) * 100, 0, 100).toFixed(1);
+    const isVIP =
+      Array.isArray(result.vipPrimary) &&
+      result.vipPrimary.some(p => p.k === m.key);
+
+    html += `
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;">
+        <div style="width:80px;">${m.label}</div>
+        <div style="flex:1;height:16px;background:rgba(255,255,255,0.1);border-radius:8px;overflow:hidden;">
+          <div style="height:16px;width:${pct}%;background:${isVIP ? m.color : '#d4af37'};border-radius:8px;"></div>
+        </div>
+        <div style="width:40px;text-align:right;">${pct}%</div>
+      </div>
+    `;
+  });
+
+  html += '</div>';
+  matrixDiv.innerHTML = html;
+}
+
+
+/* ==========================
+   SAVED VIP PICKS (CLEAN)
+========================== */
+
+const VIP_STORAGE_KEY = "VIP_SAVED";
+const MAX_SAVED_PICKS = 50;
+
+/* ---------- Storage Helpers ---------- */
+function getSavedPicks() {
+  try {
+    const data = JSON.parse(localStorage.getItem(VIP_STORAGE_KEY));
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+
+
+
+/* ==========================
+   SAFE VIP PICK OBJECT
+========================== */
+function safeVipPick(pick = {}) {
+  return {
+    match: pick.match ?? "",
+    market: pick.market ?? "",
+    odds: pick.odds ?? "",
+    prob: pick.prob ?? 0,
+    risk: pick.risk ?? "",
+    confidence: pick.confidence ?? 0,
+    time: pick.time ?? "",
+    explanation: pick.explanation ?? ""
+  };
+}
+
+/* ==========================
+   SAVE VIP PICKS
+========================== */
+function savePicks(picks) {
+  // Ensure every pick is safe
+  const safePicks = Array.isArray(picks) ? picks.map(safeVipPick) : [];
+  localStorage.setItem(VIP_STORAGE_KEY, JSON.stringify(safePicks));
+}
+
+/* ==========================
+   LOAD VIP PICKS
+========================== */
+function loadPicks() {
+  try {
+    const stored = localStorage.getItem(VIP_STORAGE_KEY);
+    const picks = stored ? JSON.parse(stored) : [];
+    return Array.isArray(picks) ? picks.map(safeVipPick) : [];
+  } catch {
+    return [];
+  }
+}
+
+function formatVipPick(pick = {}) {
+  return `
+    <div class="font-semibold text-gold">
+      ${escapeHtml(pick.match || "Unknown Match")}
+    </div>
+
+    <div class="text-xs">
+      ${escapeHtml(safeUpper(pick.market))}
+      @ ${escapeHtml(safeNum(pick.odds, 0))}
+      • ${escapeHtml(safeNum(pick.prob, 0))}%
+      • ${escapeHtml(safeUpper(pick.risk))}
+    </div>
+
+    <div class="text-[10px] text-gray-400">
+      Confidence: ${escapeHtml(safeNum(pick.confidence, 0))}%
+      • ${escapeHtml(pick.time || "")}
+    </div>
+  `;
+}
+
+
+/* ==========================
+   ATTACH EXPLANATIONS & CLEAN VIP ARRAY
+========================== */
+function prepareVipPicks(vipPrimary, probabilities, input, meanGoals, trap) {
+  if (!Array.isArray(vipPrimary)) return [];
+
+  return vipPrimary.map((pick) => {
+    // Attach explanation safely if not present
+    if (!pick.explanation) {
+      pick.explanation = explainPick(pick, probabilities, input, { meanGoals, trap });
+    }
+    // Return fully sanitized pick
+    return safeVipPick(pick);
+  });
+}
+
+function renderSaved() {
+  const container = document.getElementById("savedPicks");
+  if (!container) return;
+
+  const saved = getSavedPicks();
+
+  if (!saved.length) {
+    container.innerHTML = `<div class="text-gray-400">No saved picks</div>`;
+    return;
+  }
+
+  container.innerHTML = saved
+    .map(
+      (p, i) => `
+      <div class="mb-2 p-2 rounded-lg bg-black/30 border border-white/10 relative">
+        ${formatVipPick(p)}
+        <button
+          onclick="removeSavedPick(${i})"
+          class="absolute top-1 right-1 text-red-400 text-xs"
+          title="Remove"
+        >✖</button>
+      </div>
+    `
+    )
+    .join("");
+}
+
+/* ---------- Remove ---------- */
+function removeSavedPick(index) {
+  const saved = getSavedPicks();
+  if (index < 0 || index >= saved.length) return;
+
+  saved.splice(index, 1);
+  savePicks(saved);
+  renderSaved();
+}
+
+/* ==========================
+   SAVE VIP PICK (SINGLE SOURCE)
+========================== */
+document.addEventListener("DOMContentLoaded", () => {
+  const saveBtn = document.getElementById("savePickBtn");
+  const clearBtn = document.getElementById("clearSavedBtn");
+
+  saveBtn?.addEventListener("click", () => {
+    const result = window.LAST_VIP_RESULT; // ✅ FIXED
+
+    if (
+      !result ||
+      !Array.isArray(result.vipPrimary) ||
+      !result.vipPrimary.length
+    ) {
+      alert("Run VIP analysis first.");
+      return;
+    }
+
+    const vip = result.vipPrimary[0];
+    const input = result.input;
+
+    const pick = {
+      match: `${escapeHtml(input.teamA)} vs ${escapeHtml(input.teamB)}`,
+      market: vip.k,
+      odds: vip.odds,
+      prob: (vip.v * 100).toFixed(1),
+      risk: vip.risk,
+      confidence: result.confidence,
+      time: new Date().toLocaleString()
+    };
+
+    let saved = getSavedPicks();
+
+    // Prevent duplicates
+    const hash = JSON.stringify(pick);
+    if (saved.some(p => JSON.stringify(p) === hash)) {
+      alert("This VIP pick is already saved.");
+      return;
+    }
+
+    saved.unshift(pick);
+    if (saved.length > MAX_SAVED_PICKS) {
+      saved = saved.slice(0, MAX_SAVED_PICKS);
+    }
+
+    savePicks(saved);
+    renderSaved();
+    alert("VIP pick saved!");
+  });
+
+  clearBtn?.addEventListener("click", () => {
+    if (!confirm("Clear ALL saved VIP picks?")) return;
+    localStorage.removeItem(VIP_STORAGE_KEY);
+    renderSaved();
+  });
+
+  renderSaved();
+});
+
+
+
+  // Export JSON
+  const exportBtn = document.getElementById('exportVipBtn');
+  exportBtn?.addEventListener('click', () => {
+    const saved = JSON.parse(localStorage.getItem('VIP_SAVED') || '[]');
+    if (!saved.length) return alert("No picks to export!");
+
+    const blob = new Blob([JSON.stringify(saved, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'vip_saved_picks.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+function showVipApp() {
+  const loader = document.getElementById("vipPageLoader");
+  const app = document.getElementById("vipApp");
+
+  if (!loader || !app) return;
+
+  loader.style.opacity = "0";
+  loader.style.transition = "opacity 0.3s ease";
+
+  setTimeout(() => {
+    loader.remove();
+    app.style.display = "block";
+  }, 300);
+}
+
+
+/* ==========================
+   VIP USER / PAYMENT
+========================== */
+const API_BASE = "/api";
+
+function getVipUser() {
+  let userId = localStorage.getItem("vip_user_id");
+  let email = localStorage.getItem("vip_email");
+
+  if (!userId || !email) {
+    email = prompt("Enter your email to continue (VIP access):");
+    if (!email || !email.includes("@")) {
+      alert("Valid email required");
+      return null;
+    }
+
+    userId = email.toLowerCase();
+    localStorage.setItem("vip_user_id", userId);
+    localStorage.setItem("vip_email", email);
+  }
+
+  return { userId, email };
+}
+
+/* ==========================
+   BEGIN VIP PAYMENT
+========================== */
+async function beginVipPayment() {
+  const user = getVipUser();
+  if (!user) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/vip-init`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(user)
+    });
+
+    const data = await res.json();
+
+    if (data.authorization_url) {
+      window.location.href = data.authorization_url;
+    } else {
+      alert("Unable to start payment. Try again.");
+    }
+
+  } catch (err) {
+    console.error("VIP Payment Error:", err);
+    alert("Server not reachable");
+  }
+}
+
+/* ==========================
+   LOAD VIP STATUS (RESILIENT)
+========================== */
+async function loadVipStatus() {
+  const dash = document.getElementById("dashboardArea");
+  const gate = document.getElementById("gateArea");
+  const daysEl = document.getElementById("daysLeft");
+
+  try {
+    const user = getVipUser();
+    if (!user || !user.userId) {
+      window.VIP_ACTIVE = false;
+      if (dash) dash.style.display = "none";
+      if (gate) gate.style.display = "block";
+      return;
+    }
+
+    const res = await fetch(
+      `${API_BASE}/vip-status?userId=${encodeURIComponent(user.userId)}`,
+      { cache: "no-store" }
+    );
+
+ if (!res.ok) {
+  console.warn("VIP status request failed:", res.status);
+  throw new Error("VIP status unavailable");
+}
+
+
+    const data = await res.json();
+    console.log("VIP STATUS:", data);
+
+    // ✅ fallback if 'active' is missing
+    window.VIP_ACTIVE = data?.active === true;
+
+    if (!dash || !gate) return;
+
+    /* ==========================
+       VIP ACTIVE
+    ========================== */
+    if (window.VIP_ACTIVE) {
+      gate.style.display = "none";
+      dash.style.display = "grid";
+      dash.classList.remove("hidden");
+
+       showVipApp(); // ✅ SHOW APP ONLY NOW
+
+
+      if (daysEl) {
+        const days = Number(data?.daysLeft) || 0;
+        if (days > 0) {
+          daysEl.innerHTML = `
+            <div class="flex items-center justify-between gap-3
+                        bg-gradient-to-r from-yellow-400/20 to-yellow-600/10
+                        border border-yellow-400/50
+                        rounded-xl px-4 py-3 shadow-lg">
+              
+              <div class="flex items-center gap-2">
+                <span class="text-yellow-400 text-xl">⭐</span>
+                <span class="text-yellow-300 font-semibold text-sm uppercase tracking-wide">
+                  VIP Active
+                </span>
+              </div>
+
+              <div class="text-right">
+                <div class="text-yellow-400 font-bold text-lg leading-none">
+                  ${days}
+                </div>
+                <div class="text-xs text-yellow-200/80">
+                  day${days !== 1 ? "s" : ""} left
+                </div>
+              </div>
+            </div>
+          `;
+        } else {
+          daysEl.innerHTML = `
+            <div class="bg-green-500/10 border border-green-400/30
+                        text-green-300 rounded-xl px-4 py-3
+                        text-sm font-semibold shadow">
+              ⭐ VIP Active
+            </div>
+          `;
+        }
+      }
+
+      return;
+    }
+
+    /* ==========================
+       VIP INACTIVE
+    ========================== */
+    dash.style.display = "none";
+    gate.style.display = "block";
+
+    if (!gate.dataset.rendered) {
+      gate.dataset.rendered = "true";
+      gate.innerHTML = `
+        <div class="p-6 rounded-2xl bg-[#1a1a1a]
+             border border-yellow-400 shadow-lg text-center max-w-md mx-auto">
+          <h3 class="text-yellow-400 text-2xl font-bold mb-2">VIP LOCKED</h3>
+          <p class="text-gray-400 mb-4">
+            Activate VIP to unlock premium predictions.
+          </p>
+          <button
+            id="vipPayBtn"
+            class="bg-yellow-400 text-black px-6 py-2 rounded-lg font-semibold">
+            Pay ₵100 to Unlock VIP
+          </button>
+        </div>
+      `;
+
+      document
+        .getElementById("vipPayBtn")
+        ?.addEventListener("click", beginVipPayment);
+    }
+
+   showVipApp(); // still remove loader, show gate
+
+
+  } catch (err) {
+    console.error("VIP STATUS ERROR:", err);
+    window.VIP_ACTIVE = false;
+
+    if (dash) dash.style.display = "none";
+    if (gate) gate.style.display = "block";
+  }
+}
+
+showVipApp(); // still remove loader, show gate
+
+/* ==========================
+   VIP GATE (SAFE)
+========================== */
+function enforceVipGate() {
+  const dash = document.getElementById("dashboardArea");
+  const gate = document.getElementById("gateArea");
+  if (!dash || !gate) return;
+
+  if (window.VIP_ACTIVE) {
+    gate.style.display = "none";
+    dash.style.display = "grid";
+  } else {
+    dash.style.display = "none";
+    gate.style.display = "block";
+  }
+}
+
+
+/* ==========================
+   INIT (SAFE ORDER)
+========================== */
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadVipStatus();
+  enforceVipGate();
+  renderSaved?.();
+});
+
+/* ==========================
+   VIP ANALYZE BUTTON (FINAL FIX)
+========================== */
+document.getElementById("vipAnalyzeBtn")?.addEventListener("click", () => {
+  try {
+    const leagueSelect =
+      document.getElementById("leagueSelect") ||
+      document.getElementById("league");
+
+    const selectedLeague = leagueSelect?.value?.trim();
+    if (!selectedLeague) {
+      alert("Please select a league or cup");
+      return;
+    }
+
+    // 🔥 TRY ORIGINAL readInput FIRST
+    let input = null;
+    try {
+      input = readInput(); // ⛔ NO PARAM
+    } catch (e) {
+      input = null;
+    }
+
+    // 🔒 FALLBACK: MANUAL BUILD (CRITICAL)
+    if (!input || typeof input !== "object") {
+      input = {
+        teamA: document.getElementById("vipTeamA")?.value || "",
+        teamB: document.getElementById("vipTeamB")?.value || "",
+        formA: document.getElementById("vipFormA")?.value || "",
+        formB: document.getElementById("vipFormB")?.value || "",
+        h2h: document.getElementById("vipH2H")?.value || "",
+        odds: {
+          home: Number(document.getElementById("vipOddsHome")?.value),
+          draw: Number(document.getElementById("vipOddsDraw")?.value),
+          away: Number(document.getElementById("vipOddsAway")?.value),
+          over25: Number(document.getElementById("vipOddsOver25")?.value),
+          under25: Number(document.getElementById("vipOddsUnder25")?.value),
+          btts: Number(document.getElementById("vipOddsBTTS")?.value)
+        }
+      };
+    }
+
+    // 🔒 NORMALIZE
+    input.teamA = String(input.teamA || "");
+    input.teamB = String(input.teamB || "");
+    input.league = selectedLeague;
+    input.formA = String(input.formA || "");
+    input.formB = String(input.formB || "");
+    input.h2h = input.h2h || {};
+    input.odds = input.odds || {};
+
+    if (!validateFormInput(input)) {
+      alert(
+        "FORM ERROR:\n" +
+        "• Use 3–8 league matches only\n" +
+        "• Correct home/away form"
+      );
+      return;
+    }
+
+    /* ==========================
+       RUN ANALYSIS
+    ========================== */
+    const result = predictAll(input);
+
+    window.LAST_VIP_RESULT = result;
+    window.latestVIP = Array.isArray(result.vipPrimary)
+      ? result.vipPrimary
+      : [];
+
+    // ✅ INIT ACCA POOL ONCE
+if (!Array.isArray(window.VIP_ACCA_POOL)) {
+  window.VIP_ACCA_POOL = [];
+}
+
+// ✅ ADD PICKS (DO NOT RESET)
+window.latestVIP.forEach(pick => {
+  if (!pick || !pick.matchId) return;
+
+  const exists = window.VIP_ACCA_POOL.some(
+    x => x.matchId === pick.matchId && x.k === pick.k
+  );
+
+  if (!exists) {
+    window.VIP_ACCA_POOL.push(pick);
+    console.log("✅ ACCA ADD:", pick.matchId, pick.k);
+  }
+});
+
+
+    const scoresMatrix = Array.isArray(result.matrix?.matrix)
+      ? result.matrix.matrix
+      : [];
+
+    const correctScores = generateCorrectScores(
+      scoresMatrix,
+      result.probabilities
+    );
+
+    const finalResult = {
+      ...result,
+      scoresMatrix,
+      correctScores
+    };
+
+    renderVIP(finalResult);
+    renderMatrixAndGraph(finalResult);
+    renderCorrectScores(correctScores);
+    renderVipAccas();
+
+
+    console.log("VIP ANALYSIS OK", finalResult);
+
+  } catch (err) {
+    console.error("VIP ANALYZE ERROR:", err);
+    alert("Unexpected error — check console");
+  }
+});
+
+
+</script>
+<footer>© 2025 BetlogicApp — VIP Engine</footer>
+</body>
+</html>

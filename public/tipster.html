@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VIP Tipster</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <!-- Tailwind CDN (FULL, MOBILE-SAFE) -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          gold: "#d4af37",
+          yellowHover: "#facc15"
+        },
+        fontFamily: {
+          poppins: ["Poppins", "sans-serif"]
+        }
+      }
+    }
+  }
+</script>
+
+
+
+
+
+</head>
+
+<body class="bg-gray-900 text-gray-100 min-h-screen p-6">
+
+<div class="max-w-5xl mx-auto">
+
+  <h1 class="text-3xl font-bold mb-6 text-yellow-400">VIP Tipster</h1>
+
+  <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-3">
+    <button id="refreshBtn"
+      class="bg-yellow-400 text-gray-900 px-4 py-2 rounded hover:bg-yellow-500 font-semibold transition">
+      Refresh Tips
+    </button>
+    <div id="lastRefresh" class="text-gray-400 text-sm"></div>
+  </div>
+
+  <div id="vipTips" class="space-y-4">
+    <div class="text-gray-400 text-center">Loading tips…</div>
+  </div>
+
+</div>
+
+<script>
+
+
+
+
+
+const API_BASE = "http://localhost:4000";
+
+/* =========================
+   Helpers
+========================= */
+function setLastRefresh() {
+  document.getElementById("lastRefresh").textContent =
+    "Last refresh: " + new Date().toLocaleTimeString();
+}
+
+function emptyState(msg = "No VIP tips available") {
+  return `
+    <div class="bg-gray-800 border border-gray-700 p-4 rounded text-gray-400 text-center">
+      ${msg}
+    </div>
+  `;
+}
+
+/* =========================
+   Render Tips
+========================= */
+function renderVipTips(tips) {
+  const container = document.getElementById("vipTips");
+
+  if (!Array.isArray(tips) || tips.length === 0) {
+    container.innerHTML = emptyState();
+    return;
+  }
+
+  container.innerHTML = tips.map(tip => {
+    const home = tip?.teams?.home ?? "Home";
+    const away = tip?.teams?.away ?? "Away";
+    const league = tip?.league?.name ?? "Unknown League";
+    const date = tip?.fixture?.date
+      ? new Date(tip.fixture.date).toLocaleString()
+      : "-";
+
+    const picks = Array.isArray(tip.vipPicks)
+      ? tip.vipPicks.map(p => {
+          const cls =
+            p.risk === "safe"   ? "bg-green-400 text-black" :
+            p.risk === "medium" ? "bg-yellow-400 text-black" :
+                                  "bg-red-500 text-white";
+          return `
+            <span class="inline-block px-2 py-1 rounded ${cls}">
+              ${p.label} (${p.pct}%)
+            </span>
+          `;
+        }).join("")
+      : "";
+
+    return `
+      <div class="bg-gray-800 border border-gray-700 rounded-xl p-4 shadow transition-transform transform hover:scale-105">
+        <div class="text-yellow-400 text-sm mb-1">${league}</div>
+        <div class="text-lg font-semibold mb-2">${home} vs ${away}</div>
+        <div class="text-gray-400 text-sm mb-2">${date}</div>
+        <div class="flex flex-wrap gap-2 mb-2">${picks}</div>
+        <div class="flex justify-between text-sm text-gray-300">
+          <span>Confidence: ${tip.confidence ?? 0}%</span>
+          <span>Stake: ${tip.stake ?? "LOW"}</span>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+/* =========================
+   Load Tips
+========================= */
+async function loadVipTips(showAlert = false) {
+  const container = document.getElementById("vipTips");
+
+  try {
+    const res = await fetch(
+      `${API_BASE}/vip-tips/public?ts=${Date.now()}`, // cache-busting
+      { cache: "no-store" }
+    );
+
+    if (!res.ok) throw new Error("Request failed");
+
+    const data = await res.json();
+    renderVipTips(data.tips);
+    setLastRefresh();
+
+  } catch (err) {
+    console.error("VIP TIPS LOAD ERROR:", err);
+    if (showAlert) alert("Unable to load VIP tips");
+
+    container.innerHTML = `
+      <div class="bg-red-900/40 border border-red-500 p-4 rounded text-gray-100 text-center">
+        Error loading VIP tips.
+      </div>
+    `;
+  }
+}
+
+/* =========================
+   Init
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("refreshBtn")
+    .addEventListener("click", () => loadVipTips(true));
+
+  // initial load
+  loadVipTips(false);
+
+  // auto refresh every 30 seconds
+  setInterval(() => loadVipTips(false), 30000);
+});
+</script>
+
+</body>
+</html>

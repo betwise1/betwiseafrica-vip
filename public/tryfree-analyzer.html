@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>BetlogicApp — Free Analyzer (Manual Mode)</title>
+
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Segoe UI,Roboto,Arial,sans-serif}
+body{background:#0a0a0a;color:#ffd700;padding:18px;line-height:1.5}
+h1{text-align:center;margin-bottom:18px;font-size:1.8em}
+
+.wrap{max-width:980px;margin:0 auto;display:grid;grid-template-columns:1fr 360px;gap:20px}
+@media(max-width:980px){.wrap{grid-template-columns:1fr}}
+
+.card{background:#111;border-radius:14px;padding:18px;border:1px solid rgba(255,215,0,0.08)}
+label{display:block;color:#d9d6a4;font-size:13px;margin-top:12px}
+input,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:#071018;color:#fff;margin-top:6px}
+textarea{min-height:84px}
+
+.row{display:flex;gap:12px;margin-top:8px}
+.row>*{flex:1}
+
+button{background:#ffd700;color:#050505;border:none;padding:12px;border-radius:10px;font-weight:700;cursor:pointer;margin-top:14px}
+button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.08);color:#ffd700}
+
+.result{background:#0f1112;padding:14px;border-radius:8px;color:#fff;margin-top:14px;max-height:450px;overflow:auto}
+.small{color:#9aa0a6;font-size:13px}
+.muted{color:#bfb68a;font-size:12px;margin-top:6px}
+
+#freeTryHint{font-weight:700;margin-top:10px}
+
+footer{
+margin-top:30px;
+text-align:center;
+font-size:13px;
+color:#bfb68a
+}
+footer a{color:#ffd700;text-decoration:none}
+</style>
+</head>
+
+<body>
+
+<h1>Free Football Analyzer — Manual Mode</h1>
+
+<div class="wrap">
+
+<!-- MAIN -->
+<div class="card">
+
+<div class="small">This is the FREE surface layer of the Betwise model.</div>
+
+<label>Team A</label>
+<input id="teamA">
+
+<label>Team B</label>
+<input id="teamB">
+
+<label>H2H (optional)</label>
+<input id="h2h" placeholder="0-2,1-1,2-0">
+
+<div class="row">
+<div><label>Form A</label><input id="formA"></div>
+<div><label>Form B</label><input id="formB"></div>
+</div>
+
+<div class="row">
+<div><label>Odds A</label><input id="oddsA" type="number" step="0.01"></div>
+<div><label>Odds B</label><input id="oddsB" type="number" step="0.01"></div>
+</div>
+
+<div id="freeTryHint" class="small"></div>
+
+<button id="btnPredict">Predict Outcome</button>
+
+<div id="result" class="result">Prediction result will appear here.</div>
+
+</div>
+
+<!-- SIDE -->
+<aside class="card">
+<div class="small">Reasoning, rejected matches & discipline notes are shared on Telegram.</div>
+
+<label>Hot Fixtures</label>
+<textarea id="hotFixtures"></textarea>
+<button class="ghost" id="btnAnalyzeHot">Analyze</button>
+
+<label>Odds Movement</label>
+<input id="oddsMovementInput" placeholder="1.80,1.70">
+<button class="ghost" id="btnCheckMovement">Check</button>
+
+<div id="hotResult" class="result"></div>
+</aside>
+
+</div>
+
+<footer>
+🧠 Full model logic & VIP reasoning →  
+<a href="https://t.me/BetlogicApp" target="_blank">Telegram @BetlogicApp</a>
+</footer>
+
+<script>
+/* =============================
+   DAILY FREE LIMIT (5/day)
+============================= */
+const FREE_TRY_LIMIT=5;
+const today=new Date().toISOString().slice(0,10);
+let freeTryData=JSON.parse(localStorage.getItem('freeTryData')||'{}');
+if(freeTryData.date!==today){freeTryData={date:today,count:0};localStorage.setItem('freeTryData',JSON.stringify(freeTryData));}
+
+function updateHint(){
+const left=FREE_TRY_LIMIT-freeTryData.count;
+freeTryHint.innerHTML=left>0
+?`Free tries left today: ${left}`
+:`⚠️ Daily limit reached.  
+<br>Full model explanations on  
+<a href="https://t.me/BetlogicApp" target="_blank">Telegram</a>`;
+}
+updateHint();
+
+/* =============================
+   MATH HELPERS
+============================= */
+function factorial(n){let f=1;for(let i=2;i<=n;i++)f*=i;return f}
+function poisson(k,l){return Math.pow(l,k)*Math.exp(-l)/factorial(k)}
+function formScoreAvg(s){
+if(!s)return 0;
+s=s.toUpperCase().replace(/\s/g,'');
+const a=s.includes('-')?s.split('-'):s.split('');
+let p=0,c=0;
+a.forEach(x=>{c++;if(x==='W')p+=3;else if(x==='D')p+=1});
+return c?p/c:0;
+}
+function parseH2H(s){
+if(!s)return{a:0,b:0,d:0,t:1};
+let a=0,b=0,d=0;
+s.split(/[,;\n]+/).forEach(x=>{
+const m=x.match(/(\d+)[-:](\d+)/);
+if(!m)return;
+const A=+m[1],B=+m[2];
+if(A>B)a++;else if(B>A)b++;else d++;
+});
+return{a,b,d,t:Math.max(1,a+b+d)};
+}
+function kelly(p,o){if(o<=1)return 0;const b=o-1,q=1-p;return Math.max(0,((b*p)-q)/b)}
+
+/* =============================
+   PREDICTION ENGINE (FULL)
+============================= */
+function runModel(){
+const A=teamA.value||'Team A';
+const B=teamB.value||'Team B';
+const fA=formScoreAvg(formA.value);
+const fB=formScoreAvg(formB.value);
+const h=parseH2H(h2h.value);
+
+const pA=(h.a+0.5*h.d)/(h.t);
+const pB=(h.b+0.5*h.d)/(h.t);
+
+const mA=0.6*(fA/3)+0.4*pA;
+const mB=0.6*(fB/3)+0.4*pB;
+
+const lA=Math.max(0.05,mA*3);
+const lB=Math.max(0.05,mB*3);
+
+let pHome=0,pDraw=0,pAway=0,score={};
+for(let i=0;i<=6;i++)for(let j=0;j<=6;j++){
+const p=poisson(i,lA)*poisson(j,lB);
+score[`${i}-${j}`]=(score[`${i}-${j}`]||0)+p;
+if(i>j)pHome+=p;else if(i<j)pAway+=p;else pDraw+=p;
+}
+const s=pHome+pDraw+pAway;pHome/=s;pDraw/=s;pAway/=s;
+
+let out=`<strong>${A} vs ${B}</strong><br>`;
+out+=`Outcome probabilities:<br>${A}: ${(pHome*100).toFixed(2)}% · Draw: ${(pDraw*100).toFixed(2)}% · ${B}: ${(pAway*100).toFixed(2)}%<br><br>`;
+
+const top=Object.entries(score).sort((a,b)=>b[1]-a[1]).slice(0,5);
+out+=`Top scorelines:<br>`;
+top.forEach(x=>out+=`${x[0]} — ${(x[1]*100).toFixed(2)}%<br>`);
+
+out+=`<br><em>Full filters & rejection logic on Telegram.</em><br>
+<a href="https://t.me/BetlogicApp" target="_blank">Join BetlogicApp</a>`;
+
+result.innerHTML=out;
+}
+
+/* =============================
+   EVENTS
+============================= */
+btnPredict.onclick=()=>{
+if(freeTryData.count>=FREE_TRY_LIMIT){
+alert("Daily limit reached.\nJoin Telegram for full model:\nhttps://t.me/BetlogicApp");
+return;
+}
+freeTryData.count++;
+localStorage.setItem('freeTryData',JSON.stringify(freeTryData));
+updateHint();
+runModel();
+};
+
+btnAnalyzeHot.onclick=()=>{
+hotResult.innerHTML=hotFixtures.value.split('\n').map(x=>'• '+x).join('<br>');
+};
+
+btnCheckMovement.onclick=()=>{
+const v=oddsMovementInput.value;
+if(!v)return;
+const n=v.split(',').map(Number);
+hotResult.innerHTML=`Movement: ${(n[1]-n[0]).toFixed(2)}`;
+};
+</script>
+
+</body>
+</html>
