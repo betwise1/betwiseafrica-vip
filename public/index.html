@@ -4,55 +4,43 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>BetlogicApp — Stop Betting Blind</title>
+  <title>BetlogicApp — Avoid Bad Bets Before They Drain Your Bankroll</title>
 
-  <meta name="description" content="Most betting losses come from matches that should never be played. BetlogicApp reveals which games to avoid — and which ones actually deserve your money."/>
+  <meta name="description" content="Most betting losses come from matches that should never be played. BetlogicApp filters dangerous games and shows you when NOT to bet."/>
   <meta name="keywords" content="football analysis, betting discipline, avoid bad bets, VIP betting logic, value betting Africa"/>
   <meta name="author" content="BetlogicApp"/>
 
-  <meta property="og:title" content="BetlogicApp — Most Losses Come From Bad Match Selection">
-  <meta property="og:description" content="If you don’t know which matches to ignore, you’re already losing. BetlogicApp exposes risk before you bet.">
+  <meta property="og:title" content="BetlogicApp — If You Bet Every Big Match, You’re Already Losing">
+  <meta property="og:description" content="BetlogicApp exposes high-risk matches before you place bad bets. Discipline beats emotion.">
   <meta property="og:type" content="website">
   <meta property="og:image" content="/assets/stadium.jpeg">
   <link rel="preload" as="image" href="/assets/stadium.jpeg">
 
-  
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-
-  <!-- Tailwind CDN (FULL, MOBILE-SAFE) -->
-<script src="https://cdn.tailwindcss.com"></script>
-
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        colors: {
-          gold: "#d4af37",
-          yellowHover: "#facc15"
-        },
-        fontFamily: {
-          poppins: ["Poppins", "sans-serif"]
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gold: "#d4af37",
+            yellowHover: "#facc15"
+          },
+          fontFamily: {
+            poppins: ["Poppins", "sans-serif"]
+          }
         }
       }
     }
-  }
-</script>
-
-
-
+  </script>
 
   <style>
-    /* Optional fade animation */
-    .carousel-slide {
-      transition: opacity 0.5s ease-in-out;
-      opacity: 0;
-    }
-    .carousel-slide.active {
-      opacity: 1;
-    }
+    .carousel-slide { transition: opacity 0.5s ease-in-out; opacity: 0; }
+    .carousel-slide.active { opacity: 1; }
   </style>
 </head>
 
@@ -65,80 +53,85 @@
     <div class="carousel-slide absolute inset-0">
       <img src="/assets/stadium.jpeg" class="w-full h-full object-cover brightness-75" />
       <div class="absolute bottom-8 w-full text-center text-2xl md:text-3xl font-bold text-yellow-400 drop-shadow">
-        Most Bets Lose Before Kickoff
+        Most Bets Are Lost Before Kickoff
       </div>
     </div>
 
     <div class="carousel-slide absolute inset-0">
       <img src="/assets/soccer-players.jpeg" class="w-full h-full object-cover brightness-75" />
       <div class="absolute bottom-8 w-full text-center text-2xl md:text-3xl font-bold text-yellow-400 drop-shadow">
-        You’re Not Losing Because You’re Unlucky
+        Big Matches = Big Traps
       </div>
     </div>
 
     <div class="carousel-slide absolute inset-0">
       <img src="/assets/stadium-night.jpeg" class="w-full h-full object-cover brightness-75" />
       <div class="absolute bottom-8 w-full text-center text-2xl md:text-3xl font-bold text-yellow-400 drop-shadow">
-        You’re Losing Because You’re Betting the Wrong Matches
+        Smart Bettors Know When To Walk Away
       </div>
     </div>
 
-    <button onclick="plusSlides(-1)" class="carousel-nav absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 text-yellow-400 text-3xl hover:text-white transition">
-      &#10094;
-    </button>
-
-    <button onclick="plusSlides(1)" class="carousel-nav absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 text-yellow-400 text-3xl hover:text-white transition">
-      &#10095;
-    </button>
+    <button onclick="plusSlides(-1)" class="absolute left-4 top-1/2 -translate-y-1/2 text-yellow-400 text-3xl">&#10094;</button>
+    <button onclick="plusSlides(1)" class="absolute right-4 top-1/2 -translate-y-1/2 text-yellow-400 text-3xl">&#10095;</button>
   </div>
 
   <div class="relative z-10 max-w-3xl px-6">
     <h1 class="text-4xl md:text-5xl font-bold text-yellow-400 mb-4">
-      Stop Betting Blind
+      If You Bet Every Big Match, You’re Already Losing
     </h1>
+
     <p class="text-lg md:text-xl text-zinc-200 mb-6">
-      If you don’t know <span class="text-yellow-400 font-semibold">which matches to avoid</span>,
-      no strategy will save your bankroll.
+      Most bettors lose not because they’re unlucky —  
+      but because they <span class="text-yellow-400 font-semibold">bet games that should never be played.</span>
+    </p>
+
+    <p class="text-md text-zinc-400 mb-6">
+      BetlogicApp is not a tipster.  
+      It is a **decision filter** that tells you when to bet — and when to stay out.
     </p>
 
     <div class="flex flex-col sm:flex-row gap-4 justify-center">
       <a href="tryfree-analyzer.html">
         <button class="px-8 py-3 rounded-lg border-2 border-yellow-400 text-yellow-400 font-semibold hover:bg-yellow-400 hover:text-black transition">
-          Run Free Analysis
+          See Risk on a Match (Free)
         </button>
       </a>
       <a href="vip.html" class="px-8 py-3 rounded-lg font-bold bg-gradient-to-r from-yellow-400 to-yellow-200 text-black hover:scale-105 transition">
         Unlock Full Decision Engine
       </a>
     </div>
+
+    <p class="text-xs text-zinc-400 mt-4">
+      Built for disciplined bettors. Not for chasing odds.
+    </p>
   </div>
 </section>
 
 <!-- WHY -->
 <section class="max-w-6xl mx-auto px-6 py-16">
   <h2 class="text-3xl md:text-4xl text-center font-bold text-yellow-400 mb-10">
-    Why Most Bettors Keep Losing
+    Why Most Bettors Bleed Slowly
   </h2>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div class="bg-zinc-900 border border-zinc-700 rounded-xl p-6">
-      <h3 class="text-xl font-bold text-yellow-400 mb-2">They Bet Too Many Matches</h3>
-      <p>Most games look attractive. Very few are actually safe. Without filters, you’re betting chaos.</p>
+      <h3 class="text-xl font-bold text-yellow-400 mb-2">They Bet Too Often</h3>
+      <p>Activity feels productive. It’s usually destructive. The more you bet, the more edge you give away.</p>
     </div>
 
     <div class="bg-zinc-900 border border-zinc-700 rounded-xl p-6">
-      <h3 class="text-xl font-bold text-yellow-400 mb-2">They Ignore Risk Signals</h3>
-      <p>Odds, form, and goal markets often conflict. These warning signs are invisible without structured analysis.</p>
+      <h3 class="text-xl font-bold text-yellow-400 mb-2">They Bet Popular Matches</h3>
+      <p>Derbies and big teams attract emotion, not value. These games are designed to trap casual money.</p>
     </div>
 
     <div class="bg-zinc-900 border border-zinc-700 rounded-xl p-6">
-      <h3 class="text-xl font-bold text-yellow-400 mb-2">They Chase Outcomes, Not Decisions</h3>
-      <p>Winning isn’t about predicting scores — it’s about avoiding matches that should never be played.</p>
+      <h3 class="text-xl font-bold text-yellow-400 mb-2">They Confuse Action With Skill</h3>
+      <p>Placing bets feels like progress. Skipping bad games is where real profit starts.</p>
     </div>
 
     <div class="bg-zinc-900 border border-zinc-700 rounded-xl p-6">
-      <h3 class="text-xl font-bold text-yellow-400 mb-2">They Bet Without Final Confirmation</h3>
-      <p>Most losses happen when bettors act without a confidence threshold or market alignment.</p>
+      <h3 class="text-xl font-bold text-yellow-400 mb-2">They Bet Without Final Filters</h3>
+      <p>No confirmation. No risk alignment. Just hope.</p>
     </div>
   </div>
 </section>
@@ -146,28 +139,28 @@
 <!-- ENGINE -->
 <section class="max-w-6xl mx-auto px-6 py-16">
   <h2 class="text-3xl md:text-4xl text-center font-bold text-yellow-400 mb-10">
-    What BetlogicApp Reveals
+    What BetlogicApp Actually Does
   </h2>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div class="bg-zinc-900 border border-zinc-700 rounded-xl p-6">
-      <h3 class="text-xl font-bold text-yellow-400 mb-2">Which Matches Are Dangerous</h3>
-      <p>High-entropy games, trap setups, conflicting signals — flagged before you lose money.</p>
+      <h3 class="text-xl font-bold text-yellow-400 mb-2">Flags High-Risk Matches</h3>
+      <p>Trap setups, conflicting signals, and unstable odds — marked clearly.</p>
     </div>
 
     <div class="bg-zinc-900 border border-zinc-700 rounded-xl p-6">
-      <h3 class="text-xl font-bold text-yellow-400 mb-2">Which Markets Actually Align</h3>
-      <p>Not popular picks — markets where probability, odds, and structure agree.</p>
+      <h3 class="text-xl font-bold text-yellow-400 mb-2">Shows When NOT To Bet</h3>
+      <p>No bet is often the most profitable decision.</p>
     </div>
 
     <div class="bg-zinc-900 border border-zinc-700 rounded-xl p-6">
-      <h3 class="text-xl font-bold text-yellow-400 mb-2">When the Right Move Is NO BET</h3>
-      <p>Most profitable bettors survive by skipping games. This engine enforces discipline.</p>
+      <h3 class="text-xl font-bold text-yellow-400 mb-2">Confirms Only Aligned Markets</h3>
+      <p>Probability, odds, and structure must agree — or it’s filtered out.</p>
     </div>
 
     <div class="bg-zinc-900 border border-zinc-700 rounded-xl p-6">
-      <h3 class="text-xl font-bold text-yellow-400 mb-2">Final Decision Confidence</h3>
-      <p>VIP users see confidence scores and stake logic — free users don’t.</p>
+      <h3 class="text-xl font-bold text-yellow-400 mb-2">Applies Discipline Automatically</h3>
+      <p>You don’t rely on emotion. The engine enforces restraint.</p>
     </div>
   </div>
 </section>
@@ -180,34 +173,36 @@
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div class="bg-zinc-900 border border-zinc-700 rounded-xl p-6">
-      <h3 class="text-xl font-bold text-yellow-400 mb-2">Free Access</h3>
-      <p>Basic probabilities and partial insights.</p>
+      <h3 class="text-xl font-bold text-yellow-400 mb-2">Free Mode</h3>
+      <p>See basic risk signals and partial analysis.</p>
       <p class="text-sm text-zinc-400 mt-2">
-        ⚠️ Final decisions, confidence levels, and risk filters are hidden.
+        ⚠️ Final decisions, confidence levels, and discipline filters are hidden.
       </p>
     </div>
 
     <div class="bg-zinc-900 border border-yellow-500 rounded-xl p-6">
       <h3 class="text-xl font-bold text-yellow-400 mb-2">VIP Decision Engine</h3>
-      <p>See what others miss before they place bad bets.</p>
+      <p>Built for bettors who protect capital first.</p>
       <ul class="text-sm mt-3 space-y-1">
-        <li>✔ Final market verdict</li>
+        <li>✔ Final bet / NO BET verdict</li>
         <li>✔ Trap & risk detection</li>
-        <li>✔ Confidence & stake logic</li>
-        <li>✔ Smart market selection</li>
+        <li>✔ Confidence & discipline logic</li>
+        <li>✔ Smart market filtering</li>
       </ul>
+
       <p class="text-2xl font-bold text-yellow-400 mt-4">100 GHC / month</p>
+
       <a href="vip.html" class="inline-block mt-4 px-6 py-3 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-200 text-black font-bold hover:scale-105 transition">
-        Unlock Full Engine
+        Join VIP — Bet Less, Win Smarter
       </a>
+
       <p class="text-xs text-zinc-400 mt-2">
-        Cancel anytime. No picks sold. Logic only.
+        Not a tip group. A decision system.
       </p>
     </div>
   </div>
 </section>
 
-<!-- FOOTER -->
 <footer class="bg-zinc-900 text-yellow-400 text-center py-8 font-semibold">
   &copy; 2025 BetlogicApp. Discipline Over Emotion.
 </footer>
@@ -220,7 +215,6 @@ const AUTO_DELAY = 5000;
 function showSlides(n) {
   const slides = document.getElementsByClassName("carousel-slide");
   if (!slides.length) return;
-
   if (n >= slides.length) slideIndex = 0;
   if (n < 0) slideIndex = slides.length - 1;
 
