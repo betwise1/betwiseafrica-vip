@@ -7,6 +7,7 @@
 
   <title>BetlogicApp — VIP Engine (Black & Gold) v3.1</title>
 
+  
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -635,15 +636,35 @@ document.getElementById("vipAcceptBtn").disabled = false;
 window.VIP_ACCA_POOL = window.VIP_ACCA_POOL || [];
 
 /* ==========================
-   UTILITY FUNCTIONS
+   CORE UTILITIES (SINGLE SOURCE)
 ========================== */
-function safeNum(x, d = 0) {
-  return typeof x === "number" && !isNaN(x) ? x : d;
-}
+const Utils = (() => {
 
-function clamp(x, min = 0, max = 1) {
-  return Math.min(max, Math.max(min, safeNum(x, min)));
-}
+  function safeNum(x, fallback = 0) {
+    const n = Number(x);
+    return Number.isFinite(n) ? n : fallback;
+  }
+
+  function clamp(x, min = 0, max = 1) {
+    x = safeNum(x, min);
+    return Math.min(max, Math.max(min, x));
+  }
+
+  function safeStr(x, fallback = "") {
+    return typeof x === "string" ? x.trim() : fallback;
+  }
+
+  function deepClone(obj) {
+    return typeof structuredClone === "function"
+      ? structuredClone(obj)
+      : JSON.parse(JSON.stringify(obj));
+  }
+
+  return { safeNum, clamp, safeStr, deepClone };
+
+})();
+
+
 
 function escapeHtml(str = "") {
   return String(str)
@@ -653,6 +674,21 @@ function escapeHtml(str = "") {
     .replace(/"/g,"&quot;")
     .replace(/'/g,"&#039;");
 }
+
+const VIP_ENGINE = (() => {
+
+  const state = {
+    accaPool: [],
+    betHistory: [],
+    leagueHistory: {},
+    selectedLeague: null,
+    leagueBlocked: false,
+    leagueType: "league"
+  };
+
+  return { state };
+
+})();
 
 /* ==========================
    PREDICTION LOGGING (ENHANCED)
@@ -684,7 +720,12 @@ function logPrediction(result) {
   logs.push(log);
 
   // Keep last 2000 records
-  localStorage.setItem("VIP_LOGS", JSON.stringify(logs));
+  logs.push(log);
+
+if (logs.length > 2000)
+  logs.splice(0, logs.length - 2000);
+
+localStorage.setItem("VIP_LOGS", JSON.stringify(logs));
 }
 
 /* ==========================
@@ -879,30 +920,14 @@ function handleLeagueChange() {
 }
 
 
-/* ==========================
-   UTILITY FUNCTIONS
-========================== */
-function safeUpper(x, fallback = "N/A") {
-  return typeof x === "string" && x.trim() ? x.toUpperCase() : fallback;
-}
-
-function normalizeLeagueName(league = "") {
-  return league.toString().trim().toLowerCase().replace(/[^a-z\s]/g, "").replace(/\s+/g, " ");
-}
-
-function clamp(value, min = 0, max = 1) {
-  return Math.min(max, Math.max(min, value));
-}
-
-function safeNum(x, fallback = 0) {
-  const n = parseFloat(x);
-  return isNaN(n) ? fallback : n;
-}
-
+const FACT = [1];
 function factorial(n) {
-  if (n < 2) return 1;
-  let r = 1;
-  for (let i = 2; i <= n; i++) r *= i;
+  if (FACT[n]) return FACT[n];
+  let r = FACT[FACT.length - 1];
+  for (let i = FACT.length; i <= n; i++) {
+    r *= i;
+    FACT[i] = r;
+  }
   return r;
 }
 
@@ -1217,11 +1242,15 @@ function calculateLambda(input, elo) {
   const formFactor = (input.home.goals_for + input.away.goals_for) / 2;
   const h2hFactor = h2hAvg / 2.5; // normalize
   const combinedFactor = Math.max(1, h2hFactor * (1 / Math.max(0.5, 1 - formFactor / 2)));
-  lambdaA *= combinedFactor;
-  lambdaB *= combinedFactor;
+  lambdaA *= 1 + (h2hFactor - 1) * 0.4;
+lambdaB *= 1 + (h2hFactor - 1) * 0.4;
 
-  // League bias
-  const LEAGUE_GOAL_BIAS = { /* same as before */ };
+const LEAGUE_GOAL_BIAS = Object.freeze({
+  "premier league": 1.05,
+  "laliga": 0.98,
+  "serie a": 1.02
+});
+
   const leagueKey = normalizeLeagueName(input.league);
   const bias = LEAGUE_GOAL_BIAS[leagueKey] ?? 1.0;
   lambdaA *= bias; lambdaB *= bias;
@@ -1291,7 +1320,7 @@ function buildScoreMatrix(lambdaA, lambdaB) {
   lambdaB = clamp(safeNum(lambdaB, 1.2), 0.6, 3.2);
 
 
-  const MAX_GOALS = 12;
+  const MAX_GOALS = 7;
   const matrix = [];
   let total = 0;
 
@@ -1418,25 +1447,21 @@ function safeNum(x, fallback = 0) {
   return isNaN(n) ? fallback : n;
 }
 
-/* ==========================
-   PROBABILITY CALIBRATION
-========================== */
-function calibrateProbability(p, market = '') {
-  p = clamp(p, 0, 1);
-  if (market === 'btts') {
-    if (p < 0.60) return p * 0.95;
-    if (p < 0.68) return p * 0.975;
-    return p;
+function monteCarloSim(lambdaA, lambdaB, runs = 20000) {
+  let over = 0, btts = 0;
+  for (let i = 0; i < runs; i++) {
+    const h = poissonRandom(lambdaA);
+    const a = poissonRandom(lambdaB);
+    if (h + a > 2) over++;
+    if (h > 0 && a > 0) btts++;
   }
-  if (market === 'over25' || market === 'under25') {
-    if (p < 0.55) return p * 0.95;
-    if (p < 0.65) return p * 0.975;
-    return p;
-  }
-  if (p < 0.55) return p * 0.90;
-  if (p < 0.65) return p * 0.95;
-  return p;
+  return {
+    over25: over / runs,
+    btts: btts / runs
+  };
 }
+
+
 
 function isMarketConflict(probabilities, market) {
   if (!probabilities) return false;
@@ -1523,7 +1548,6 @@ if ((k ===  "home" || k === "away") && odd < 1.60 && prob < 0.66) return;
     candidates.push({
       k,
       market: k,
-      v: Math.min(prob + 0.05, 0.99),
       odds: odd,
       ev,
       confidence: Math.round(prob * 100),
@@ -1665,12 +1689,41 @@ function computeEV(prob, odds) {
 }
 
 function computeOverallConfidence(result, probabilities) {
-  if(result?.vipPrimary?.length) return Math.round(result.vipPrimary[0].v*100);
-  const p = [ clamp(probabilities.home), clamp(probabilities.draw), clamp(probabilities.away) ];
+
+  /* If VIP exists, base confidence on strongest pick */
+  if (result?.vipPrimary?.length) {
+    return Math.round(Utils.clamp(result.vipPrimary[0].v, 0, 1) * 100);
+  }
+
+  /* ==========================
+     BUILD NORMALIZED 1X2 DIST
+  ========================== */
+  let p = [
+    Utils.safeNum(probabilities.home, 0),
+    Utils.safeNum(probabilities.draw, 0),
+    Utils.safeNum(probabilities.away, 0)
+  ];
+
+  /* Normalize to ensure sum = 1 */
+  const total = p.reduce((a, b) => a + b, 0);
+  if (total > 0) {
+    p = p.map(x => x / total);
+  }
+
+  /* ==========================
+     ENTROPY CALCULATION
+  ========================== */
   let entropy = 0;
-  p.forEach(x => { if(x>0) entropy -= x*Math.log2(x); });
+  p.forEach(x => {
+    if (x > 0) entropy -= x * Math.log2(x);
+  });
+
   const maxEntropy = Math.log2(3);
-  return Math.round(((maxEntropy-entropy)/maxEntropy)*100);
+
+  /* Convert entropy → confidence (0–100) */
+  const confidence = (maxEntropy - entropy) / maxEntropy;
+
+  return Math.round(Utils.clamp(confidence, 0, 1) * 100);
 }
 
 function computeStakeLevel(conf) {
@@ -1775,7 +1828,7 @@ function buildVipAccas(accaPool) {
       return p.ev >= 0.08 && p.v >= 0.58 && p.odds >= 1.6 && p.risk !== "HIGH";
     } else { // BTTS / Over2.5 / Under2.5 fallback
       // ⚡ lowered thresholds to allow under2.5
-      return p.ev >= 0.05 && p.v >= 0.50 && p.odds >= 1.5;
+      return p.ev >= 0.08 && p.v >= 0.50 && p.odds >= 1.5;
     }
   });
 
@@ -1923,231 +1976,238 @@ function normalizeRisk(risk) {
   return "MEDIUM";
 }
 
-/* ==========================
-   MAIN PREDICTALL (H2H + EV SAFE)
-========================== */
-function predictAll(input = {}) {
+function predictAll(rawInput = {}) {
 
-  /* ==========================
-     SANITIZE INPUT
-  ========================== */
-  input.teamA = String(input.teamA ?? "");
-  input.teamB = String(input.teamB ?? "");
-  input.league = String(input.league ?? "");
-  input.formA = String(input.formA ?? "");
-  input.formB = String(input.formB ?? "");
+if (!validateFormInput(input))
+  return buildNoBetResult(input, {}, "Invalid input");
 
-  input.h2h = input.h2h || {};
-  input.h2h.homeTeam = String(input.h2h.homeTeam ?? "");
-  input.h2h.awayTeam = String(input.h2h.awayTeam ?? "");
+  const input = structuredClone(rawInput ?? {});
 
-  input.odds = input.odds || {};
-  input.odds.home = safeNum(input.odds.home, 0);
-  input.odds.draw = safeNum(input.odds.draw, 0);
-  input.odds.away = safeNum(input.odds.away, 0);
-  input.odds.over25 = safeNum(input.odds.over25 ?? input.odds.over, 0);
-  input.odds.under25 = safeNum(input.odds.under25 ?? input.odds.under, 0);
-  input.odds.btts = safeNum(input.odds.btts ?? input.odds.bttsYes, 0);
+  const safeStr = v => String(v ?? "").trim();
+  const safeObj = v => (v && typeof v === "object") ? v : {};
+
+  input.teamA = safeStr(input.teamA);
+  input.teamB = safeStr(input.teamB);
+  input.league = safeStr(input.league);
+  input.formA = safeStr(input.formA);
+  input.formB = safeStr(input.formB);
+
+/* --- H2H STANDARDIZATION --- */
+input.h2hRaw = typeof input.h2h === "string"
+  ? input.h2h
+  : input.h2h?.raw || "";
+
+  input.h2hRaw = safeObj(input.h2h);
+  input.h2hRaw.homeTeam = safeStr(input.h2h.homeTeam);
+  input.h2h.awayTeam = safeStr(input.h2h.awayTeam);
+
+  input.odds = safeObj(input.odds);
+
+  const getOdd = (...keys) => {
+    for (const k of keys) {
+      if (input.odds[k] != null) return safeNum(input.odds[k], 0);
+    }
+    return 0;
+  };
+
+  input.odds.home = getOdd("home");
+  input.odds.draw = getOdd("draw");
+  input.odds.away = getOdd("away");
+  input.odds.over25 = getOdd("over25", "over");
+  input.odds.under25 = getOdd("under25", "under");
+  input.odds.btts = getOdd("btts", "bttsYes");
 
   /* ==========================
      CORE MODEL
   ========================== */
-  const elo = computeELO(input);
-  let { lambdaA, lambdaB } = calculateLambda(input, elo);
+  const elo = typeof computeELO === "function" ? computeELO(input) : {};
+  const { lambdaA = 1, lambdaB = 1 } =
+    typeof calculateLambda === "function"
+      ? calculateLambda(input, elo)
+      : { lambdaA: 1, lambdaB: 1 };
 
-  const matrixObj = buildScoreMatrix(lambdaA, lambdaB);
-  let probabilities = structuredClone(deriveMarkets(matrixObj));
+  const matrixObj =
+    typeof buildScoreMatrix === "function"
+      ? buildScoreMatrix(lambdaA, lambdaB)
+      : { matrix: [] };
+
+  let probabilities =
+    typeof deriveMarkets === "function"
+      ? structuredClone(deriveMarkets(matrixObj) || {})
+      : {};
+
+
 
   /* ==========================
-     H2H + FORM ADJUSTMENT (1X2 ONLY)
+     H2H + FORM ADJUSTMENT
   ========================== */
-  const h2hProbs = parseH2HWithForm({
-    h2h: input.h2h,
-    formA: input.formA,
-    formB: input.formB
+  const h2hProbs =
+    typeof parseH2HWithForm === "function"
+      ? parseH2HWithForm({
+          h2h: input.h2h,
+          formA: input.formA,
+          formB: input.formB
+        }) || {}
+      : {};
+
+  ["home", "draw", "away"].forEach(k => {
+    probabilities[k] =
+      0.7 * safeNum(probabilities[k], 0) +
+      0.3 * safeNum(h2hProbs[k], 0);
   });
 
-  probabilities.home = h2hProbs.home;
-  probabilities.draw = h2hProbs.draw;
-  probabilities.away = h2hProbs.away;
-
   /* ==========================
-     NORMALIZE 1X2 ONLY
+     NORMALIZE 1X2
   ========================== */
-  const totalHDA = probabilities.home + probabilities.draw + probabilities.away;
-  if (totalHDA > 0) {
-    probabilities.home /= totalHDA;
-    probabilities.draw /= totalHDA;
-    probabilities.away /= totalHDA;
+  const total = ["home","draw","away"]
+    .reduce((s,k)=>s+safeNum(probabilities[k],0),0);
+
+  if (total > 0) {
+    ["home","draw","away"].forEach(k=>{
+      probabilities[k] /= total;
+    });
   }
 
   /* ==========================
-     CALIBRATION
+     CALIBRATION (USE CAP)
   ========================== */
   Object.keys(probabilities).forEach(k => {
     let cap = 0.72;
-    if (k === 'btts') cap = 0.78;
-    if (k === 'over25' || k === 'under25') cap = 0.75;
+    if (k === "btts") cap = 0.78;
+    if (k === "over25" || k === "under25") cap = 0.75;
 
     probabilities[k] = clamp(
-      calibrateProbability(probabilities[k], k),
-      0.05,
+      safeNum(probabilities[k], 0),
+      0.01,
       cap
     );
   });
 
-  /* ==========================
-     H2H FLOOR OVERRIDES (BTTS + Over25)
-  ========================== */
-  const h2hAvg = avgGoalsFromH2H(input.h2h?.scores || input.h2h?.raw);
-  const weakForm = getFormStrength(input.formA) < 0.45 && getFormStrength(input.formB) < 0.45;
-  const h2hBoost = h2hGoalPressure(h2hAvg); // 0–0.18
+const hdaTotal =
+  probabilities.home +
+  probabilities.draw +
+  probabilities.away;
 
-  if (h2hAvg >= 2.5) {
-    probabilities.btts = Math.max(probabilities.btts, 0.61 + h2hBoost);
-    const minOver = weakForm ? 0.62 : 0.60;
-    probabilities.over25 = Math.max(probabilities.over25, minOver + h2hBoost);
-  }
-  if (h2hAvg >= 2.7) {
-  probabilities.under25 = clamp(probabilities.under25 - 0.12, 0.05, 0.52);
+if (hdaTotal > 0) {
+  probabilities.home /= hdaTotal;
+  probabilities.draw /= hdaTotal;
+  probabilities.away /= hdaTotal;
 }
 
+if (typeof monteCarloSim === "function") {
+  const mc = monteCarloSim(lambdaA, lambdaB, 8000);
+  probabilities.over25 =
+    0.7 * probabilities.over25 + 0.3 * mc.over25;
+
+  probabilities.btts =
+    0.7 * probabilities.btts + 0.3 * mc.btts;
+}
 
   /* ==========================
      NO BET CHECK
   ========================== */
-  const noBetCheck = shouldNoBet(probabilities);
-  if (noBetCheck.noBet) {
-    const bankroll = Number.isFinite(input.bankroll) ? input.bankroll : 100;
-    const result = {
-      input,
-      probabilities,
-      noBet: true,
-      noBetReason: noBetCheck.reason,
-      vipPrimary: [],
-      vipTicket: [],
-      correctScores: [],
-      confidence: 0,
-      stakeLevel: "NONE",
-      stake: 0,
-      bankroll,
-      bestMarket: null,
-      trap: null,
-      sharp: {}
-    };
-    logPrediction(result);
-    return result;
+  const noBetCheck =
+    typeof shouldNoBet === "function"
+      ? shouldNoBet(probabilities)
+      : { noBet:false };
+
+  if (noBetCheck?.noBet) {
+    return buildNoBetResult(input, probabilities, noBetCheck.reason);
   }
 
   /* ==========================
      TRAP DETECTION
   ========================== */
-  const trap = typeof detectTrapMatch === "function"
-    ? detectTrapMatch(input, probabilities)
-    : null;
+  const trap =
+    typeof detectTrapMatch === "function"
+      ? detectTrapMatch(input, probabilities)
+      : null;
 
   /* ==========================
-     VIP PICKS (EV + H2H SAFE)
+     VIP GENERATION
   ========================== */
-  const vipPrimaryRaw = Array.isArray(generateVIP(probabilities, input))
-    ? generateVIP(probabilities, input)
-    : [];
+  const rawVIP =
+    typeof generateVIP === "function"
+      ? generateVIP(probabilities, input) || []
+      : [];
 
-  // Separate strong 1X2 vs fallback goals markets
   const strongThreshold = 0.62;
   const minOdds = 2.0;
   const evThreshold = 0.05;
 
-  let vip1X2 = [];
-  let vipFallback = [];
+  const vip1X2 = [];
+  const vipFallback = [];
 
-  vipPrimaryRaw.forEach(p => {
-    const pickOdds = safeNum(p.odds ?? input.odds?.[p.k], 0);
-    const pickEV = computeEV(safeNum(p.v, 0), pickOdds);
+  rawVIP.forEach(p => {
+    const prob = safeNum(p?.v, 0);
+    const odds = safeNum(p?.odds ?? input.odds?.[p?.k], 0);
+    const ev = computeEV(prob, odds);
 
-    if (["home","draw","away"].includes(p.k) && pickOdds >= minOdds && safeNum(p.v,0) >= strongThreshold && pickEV >= evThreshold) {
-      vip1X2.push({...p, v: Math.min(p.v + 0.05, 0.99)});
+    if (
+      ["home","draw","away"].includes(p?.k) &&
+      prob >= strongThreshold &&
+      odds >= minOdds &&
+      ev >= evThreshold
+    ) {
+      vip1X2.push({ ...p, v: prob });
     } else {
       vipFallback.push(p);
     }
   });
 
-  let vipPrimary = vip1X2.length ? vip1X2 : vipFallback;
+  const vipPrimary = vip1X2.length ? vip1X2 : vipFallback;
 
   if (!vipPrimary.length) {
-    const bankroll = Number.isFinite(input.bankroll) ? input.bankroll : 100;
-    const result = {
+    return buildNoBetResult(
       input,
       probabilities,
-      noBet: true,
-      noBetReason: "Market shows no positive expected value today. Capital preservation mode active.",
-      vipPrimary: [],
-      vipTicket: [],
-      correctScores: [],
-      confidence: 0,
-      stakeLevel: "NONE",
-      stake: 0,
-      bankroll,
-      bestMarket: null,
-      trap,
-      sharp: {}
-    };
-    logPrediction(result);
-    return result;
+      "No positive EV markets found."
+    );
   }
 
   /* ==========================
-     FORMAT VIP PICKS
+     FORMAT PICKS
   ========================== */
-  vipPrimary = vipPrimary.map(p => {
-    const key =
-      typeof p?.k === "string" && p.k.trim()
-        ? p.k
-        : typeof p?.market === "string"
-        ? p.market
-        : typeof p?.team === "string"
-        ? p.team
-        : "N/A";
-    return { ...p, k: key, label: key.toUpperCase(), risk: normalizeRisk(p.risk) };
-  });
+  const formattedVIP = vipPrimary.map(p => {
+    const key = safeStr(p?.k || p?.market || p?.team || "N/A");
 
-  const vipTicket = vipPrimary.map(p => ({ ...p }));
-
-  vipPrimary.forEach(pick => {
-    pick.explanation = explainPick(
-      pick,
-      probabilities,
-      input,
-      { meanGoals: lambdaA + lambdaB, trap }
-    );
-  });
-
-  /* ==========================
-     ADD VIP PICKS TO ACCA POOL
-  ========================== */
-  if (!window.VIP_ACCA_POOL) window.VIP_ACCA_POOL = [];
-  vipPrimary.forEach(pick => {
-    const accaPick = {
-      ...pick,
-      matchId: `${input.league}|${input.teamA} vs ${input.teamB}`,
-      odds: safeNum(pick.odds ?? input.odds?.[pick.k], 0),
-      ev: computeEV(pick.v, safeNum(pick.odds ?? input.odds?.[pick.k], 0)),
-      addedAt: Date.now()
+    return {
+      ...p,
+      k: key,
+      label: key.toUpperCase(),
+      risk: normalizeRisk?.(p?.risk) ?? "MEDIUM",
+      explanation: explainPick?.(
+        p,
+        probabilities,
+        input,
+        { meanGoals: lambdaA + lambdaB, trap }
+      )
     };
-    const exists = window.VIP_ACCA_POOL.some(
-      p => p.matchId === accaPick.matchId && p.k === accaPick.k
-    );
-    if (!exists && accaPick.odds > 1) window.VIP_ACCA_POOL.push(accaPick);
   });
-  renderVipAccas();
 
   /* ==========================
-     CONFIDENCE & STAKE
+     ACCA POOL (SAFE GLOBAL)
   ========================== */
-  const bankroll = Number.isFinite(input.bankroll) ? input.bankroll : 100;
-  const confidence = computeOverallConfidence({ vipPrimary }, probabilities);
-  const stake = vipPrimary.length
-    ? +(bankroll * 0.03 * safeNum(vipPrimary[0].v, 0)).toFixed(2)
+  const globalScope =
+    typeof window !== "undefined" ? window :
+    typeof global !== "undefined" ? global :
+    {};
+
+  if (!globalScope.VIP_ACCA_POOL)
+    globalScope.VIP_ACCA_POOL = [];
+
+  /* ==========================
+     CONFIDENCE + STAKE
+  ========================== */
+  const bankroll = Number.isFinite(input.bankroll)
+    ? input.bankroll
+    : 100;
+
+  const confidence =
+    computeOverallConfidence?.({ vipPrimary: formattedVIP }, probabilities) ?? 0;
+
+  const stake = formattedVIP.length
+    ? +(bankroll * 0.03 * safeNum(formattedVIP[0].v,0)).toFixed(2)
     : 0;
 
   /* ==========================
@@ -2158,37 +2218,49 @@ function predictAll(input = {}) {
     matrix: matrixObj,
     matrixArray: matrixObj.matrix || [],
     probabilities,
-    vipPrimary,
-    vipTicket,
-    correctScores: generateCorrectScores(matrixObj.matrix, probabilities),
+    vipPrimary: formattedVIP,
+    vipTicket: structuredClone(formattedVIP),
+    correctScores:
+      generateCorrectScores?.(matrixObj.matrix, probabilities) ?? [],
     confidence,
     stakeLevel: stake > 0 ? "NORMAL" : "NONE",
     stake,
     bankroll,
-    bestMarket: vipPrimary.length ? {
-      k: vipPrimary[0].k,
-      label: vipPrimary[0].label,
-      prob: vipPrimary[0].v,
-      riskLevel: normalizeRisk(vipPrimary[0].risk)
-    } : null,
+    bestMarket: formattedVIP[0] ?? null,
     trap,
     noBet: false,
-    noBetReason: null,
-    sharp: {
-      home: computeSharpIndicator(probabilities.home, input.odds.home),
-      draw: computeSharpIndicator(probabilities.draw, input.odds.draw),
-      away: computeSharpIndicator(probabilities.away, input.odds.away),
-      over25: computeSharpIndicator(probabilities.over25, input.odds.over25),
-      under25: computeSharpIndicator(probabilities.under25, input.odds.under25),
-      btts: computeSharpIndicator(probabilities.btts, input.odds.btts)
-    }
+    noBetReason: null
   };
 
-  logPrediction(result);
+  logPrediction?.(result);
 
-  if (result.input.league) result.leagueStats = computeLeagueAccuracy(result.input.league, result);
+  if (input.league && computeLeagueAccuracy)
+    result.leagueStats =
+      computeLeagueAccuracy(input.league, result);
 
   return result;
+}
+
+
+/* ==========================
+   HELPER: NO BET BUILDER
+========================== */
+function buildNoBetResult(input, probabilities, reason){
+  return {
+    input,
+    probabilities,
+    noBet: true,
+    noBetReason: reason || "No value detected.",
+    vipPrimary: [],
+    vipTicket: [],
+    correctScores: [],
+    confidence: 0,
+    stakeLevel: "NONE",
+    stake: 0,
+    bankroll: Number.isFinite(input.bankroll)?input.bankroll:100,
+    bestMarket: null,
+    trap: null
+  };
 }
 
 
