@@ -985,7 +985,6 @@ function allowUnder(prob) {
 function autoSelectBestMarket(probabilities, odds = {}) {
   if (!probabilities || typeof probabilities !== "object") return null;
 
-  // 🔧 softened but disciplined thresholds
   const RULES = {
     home: 0.60,
     draw: 0.58,
@@ -1004,7 +1003,7 @@ function autoSelectBestMarket(probabilities, odds = {}) {
     if (prob >= minProb + 0.08) riskLevel = "green";
     else if (prob >= minProb) riskLevel = "yellow";
 
-    const ev = odd > 1 ? (prob * odd) - 1 : -1;
+    const EV = (prob * odd) - 1;
 
     return {
       key,
@@ -1013,65 +1012,29 @@ function autoSelectBestMarket(probabilities, odds = {}) {
       minProb,
       riskLevel,
       risk: normalizeRisk(riskLevel),
-      ev,
-      score: (ev * 0.65) + (prob * 0.35)
+      ev: EV,
+      score: (EV * 0.65) + (prob * 0.35)
     };
   });
 
-  // Sort by combined intelligence score
   markets.sort((a, b) => b.score - a.score);
 
   let best = markets[0] || null;
 
-  /* ==========================
-     SMART CONFLICT RESOLUTION
-  ========================== */
-
-  // 🔥 Avoid UNDER bias when OVER has edge
   if (best?.key === "under25") {
     const over = markets.find(m => m.key === "over25");
-    if (
-      over &&
-      over.ev > best.ev + 0.02 &&
-      probabilities.over25 > 0.55
-    ) {
-      best = over;
-    }
+    if (over && over.ev > best.ev + 0.02 && probabilities.over25 > 0.55) best = over;
   }
 
-  // 🔁 BTTS sanity switch
   if (best?.key === "btts") {
     const over = markets.find(m => m.key === "over25");
     const under = markets.find(m => m.key === "under25");
 
-    if (
-      over &&
-      probabilities.over25 > probabilities.btts + 0.07 &&
-      over.ev >= best.ev
-    ) {
-      best = over;
-    }
-
-    if (
-      under &&
-      probabilities.under25 > probabilities.btts + 0.08 &&
-      under.ev >= best.ev
-    ) {
-      best = under;
-    }
+    if (over && probabilities.over25 > probabilities.btts + 0.07 && over.ev >= best.ev) best = over;
+    if (under && probabilities.under25 > probabilities.btts + 0.08 && under.ev >= best.ev) best = under;
   }
 
-  /* ==========================
-     FINAL GATE (VERY IMPORTANT)
-  ========================== */
-
-  // Allow high-EV slight-under-prob picks
-  if (
-    !best ||
-    (best.prob < best.minProb && best.ev < 0.03)
-  ) {
-    return null;
-  }
+  if (!best || (best.prob < best.minProb && best.ev < 0.03)) return null;
 
   return {
     k: best.key,
@@ -1080,10 +1043,10 @@ function autoSelectBestMarket(probabilities, odds = {}) {
     label: best.key.toUpperCase(),
     risk: best.risk,
     riskLevel: best.riskLevel,
-    ev: best.ev
+    ev: best.ev,
+    confidence: Math.round(best.prob * 100) // ✅ proper percentage
   };
 }
-
 
 /* ==========================
    TRAP DETECTION
@@ -1463,7 +1426,9 @@ function avgGoalsFromH2H(h2hRaw) {
 }
 
 
-
+function calibrateProb(p) {
+  return Math.max(0.02, Math.min(0.98, p));
+}
 
 
 function monteCarloSim(lambdaA, lambdaB, runs = 20000) {
@@ -1543,88 +1508,56 @@ function scoreMatrix(input, meta = {}) {
 ========================= */
 function generateVIP(probabilities, input) {
   const odds = input?.odds || {};
-  const league = (input?.league || "").toLowerCase();
-  const h2hAvg = avgGoalsFromH2H(input.h2h?.scores || input.h2h?.raw || "");
-
   const candidates = [];
-  const strongThreshold = 0.62; // probability threshold for 1X2
-  const minOdds1X2 = 1.50;     // minimal odds for 1X2
-  const minEV = 0.05;            // minimal positive EV
+  const strongThreshold = 0.62;
+  const minEV = 0.05;
 
-  ["home", "draw", "away"].forEach(k => {
-  const prob = safeNum(probabilities[k], 0);
-  const odd = safeNum(odds[k], 0);
-  const ev = prob * odd - 1;
+  ["home","draw","away"].forEach(k => {
+    const prob = safeNum(probabilities[k],0);
+    const odd = safeNum(odds[k],0);
+    const ev = (prob * odd) - 1;
 
-  // 🔹 Market-specific odds floor
-  const minOdds =
-    k === "draw" ? 2.80 : 1.50; // draw stays protected
-
-  // 🔒 Anti-trap: weak favourites blocked
-if ((k ===  "home" || k === "away") && odd < 1.60 && prob < 0.66) return;
-
-  if (prob >= strongThreshold && odd >= minOdds && ev >= minEV) {
-    candidates.push({
-      k,
-      market: k,
-      odds: odd,
-      ev,
-      confidence: Math.round(prob * 100),
-      risk: prob >= 0.72 ? "SAFE" : "MEDIUM",
-      matchId: `${input.league}|${input.teamA} vs ${input.teamB}`,
-      time: new Date().toLocaleTimeString()
-    });
-  }
-});
-
-
-  // GOALS MODE (BTTS/OVER25/UNDER25) fallback if no strong 1X2
-  if (!candidates.length) {
-    if (probabilities.btts >= 0.58 && odds.btts >= 1.6) {
-      const ev = probabilities.btts * odds.btts - 1;
-      if (ev >= 0.06) {
-        candidates.push({
-          k: "btts",
-          market: "btts",
-          v: probabilities.btts,
-          odds: odds.btts,
-          ev,
-          confidence: Math.round(probabilities.btts * 100),
-          risk: probabilities.btts >= 0.64 ? "SAFE" : "MEDIUM",
-          matchId: `${input.league}|${input.teamA} vs ${input.teamB}`,
-          time: new Date().toLocaleTimeString()
-        });
-      }
+    // 🔹 Skip weak picks
+    if (prob >= strongThreshold && odd >= 1.5 && ev >= minEV) {
+      candidates.push({
+        k,
+        market: k,
+        odds: odd,
+        ev,
+        v: prob,
+        confidence: Math.round(prob * 100),
+        risk: prob >= 0.72 ? "SAFE" : "MEDIUM",
+        matchId: `${input.league}|${input.teamA} vs ${input.teamB}`,
+        time: new Date().toLocaleTimeString()
+      });
     }
-    if (probabilities.over25 >= 0.60 && odds.over25 >= 1.6) {
-      const ev = probabilities.over25 * odds.over25 - 1;
-      if (ev >= 0.06) {
-        candidates.push({
-          k: "over25",
-          market: "over25",
-          v: probabilities.over25,
-          odds: odds.over25,
-          ev,
-          confidence: Math.round(probabilities.over25 * 100),
-          risk: probabilities.over25 >= 0.65 ? "SAFE" : "MEDIUM",
-          matchId: `${input.league}|${input.teamA} vs ${input.teamB}`,
-          time: new Date().toLocaleTimeString()
-        });
-      }
+  });
+
+  // GOALS MODE fallback
+  [["btts", 0.58, 1.6], ["over25", 0.60, 1.6]].forEach(([key, minProb, minOdd]) => {
+    const prob = safeNum(probabilities[key],0);
+    const odd = safeNum(odds[key],0);
+    const ev = prob * odd - 1;
+    if (prob >= minProb && odd >= minOdd && ev >= 0.06) {
+      candidates.push({
+        k: key,
+        market: key,
+        odds: odd,
+        ev,
+        v: prob,
+        confidence: Math.round(prob * 100),
+        risk: prob >= 0.64 ? "SAFE" : "MEDIUM",
+        matchId: `${input.league}|${input.teamA} vs ${input.teamB}`,
+        time: new Date().toLocaleTimeString()
+      });
     }
-  }
+  });
 
   if (!candidates.length) return [];
 
-  // sort strongest first
-  candidates.sort((a, b) => (b.ev - a.ev) || (b.v - a.v));
-
-  // return only top 2 picks
-  return candidates.slice(0, 2);
+  candidates.sort((a,b)=> (b.ev - a.ev) || (b.v - a.v));
+  return candidates.slice(0,3);
 }
-
-
-
 /* ==========================
    PICK EXPLANATION
 ========================== */
@@ -2007,8 +1940,11 @@ function normalizeRisk(risk) {
   return "MEDIUM";
 }
 
+/* ==========================
+   PREDICT ALL FUNCTION
+========================== */
 function predictAll(rawInput = {}) {
-  const input = structuredClone(rawInput ?? {}); // declare first
+  const input = structuredClone(rawInput ?? {}); // safe clone
 
   if (!validateFormInput(input))
     return buildNoBetResult(input, {}, "Invalid input");
@@ -2063,8 +1999,18 @@ function predictAll(rawInput = {}) {
     formB: input.formB
   }) || {} : {};
 
-  ["home", "draw", "away"].forEach(k => {
+  ["home","draw","away"].forEach(k => {
     probabilities[k] = 0.7 * safeNum(probabilities[k], 0) + 0.3 * safeNum(h2hProbs[k], 0);
+  });
+
+  /* ==========================
+     ENSURE ALL PROBABILITIES
+  ========================== */
+  ["home","draw","away","over25","under25","btts"].forEach(k => {
+    if (probabilities[k] == null || !Number.isFinite(probabilities[k])) {
+        probabilities[k] = 0.01;
+    }
+    probabilities[k] = Math.min(Math.max(probabilities[k], 0.01), 0.98);
   });
 
   /* ==========================
@@ -2085,6 +2031,10 @@ function predictAll(rawInput = {}) {
 
   const hdaTotal = probabilities.home + probabilities.draw + probabilities.away;
   if (hdaTotal > 0) ["home","draw","away"].forEach(k => probabilities[k] /= hdaTotal);
+
+  let marketConfidence = 1;
+  const goalClarity = Math.abs(probabilities.over25 - probabilities.under25);
+  if (goalClarity < 0.04) marketConfidence -= 0.1;
 
   if (typeof monteCarloSim === "function") {
     const mc = monteCarloSim(lambdaA, lambdaB, 8000);
@@ -2111,7 +2061,7 @@ function predictAll(rawInput = {}) {
   const vip1X2 = [], vipFallback = [];
 
   rawVIP.forEach(p => {
-    const prob = safeNum(p?.v, 0);
+    const prob = safeNum(p?.v ?? probabilities[p?.k], 0);
     const odds = safeNum(p?.odds ?? input.odds?.[p?.k], 0);
     const ev = computeEV(prob, odds);
     if (["home","draw","away"].includes(p?.k) && prob >= strongThreshold && odds >= minOdds && ev >= evThreshold) {
@@ -2127,10 +2077,14 @@ function predictAll(rawInput = {}) {
   ========================== */
   const formattedVIP = vipPrimary.map(p => {
     const key = safeStr(p?.k || p?.market || p?.team || "N/A");
+    const probValue = safeNum(p?.v ?? probabilities[key], 0);
     return {
       ...p,
       k: key,
+      v: probValue,
       label: key.toUpperCase(),
+      prob: probValue,
+      confidence: Math.round(probValue * 100), // ✅ percentage now
       risk: normalizeRisk?.(p?.risk) ?? "MEDIUM",
       explanation: explainPick?.(p, probabilities, input, { meanGoals: lambdaA + lambdaB, trap })
     };
@@ -2198,7 +2152,6 @@ function predictAll(rawInput = {}) {
     };
   }
 }
-
 
 
 /* ==========================
